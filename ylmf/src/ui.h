@@ -49,12 +49,12 @@ struct  _ui_widgets
     _sys_button  keyboard;
     _sys_button  session;
 	_clock 		 clock;
-    gchar      * session;
-    gchar      * language;
 };
 
 GtkWidget * ui_make_root_win (void);
 void ui_set_prompt_text(const char *prompt, int type);
-
+gpointer ui_get_session (void);
+gpointer ui_get_language (void);
+gpointer ui_get_keyboard_layout (void);
 #endif /* __UI_H__ */
 

@@ -5,7 +5,10 @@
 #define SYS_MENU_ITEM_FONT_SIZE 20
 #define SYS_MENU_ITEM_WIDTH     80
 #define SYS_MENU_ITEM_HEIGHT    20
-#define SCREEN_HEIGHT           900
+
+#if !defined(SYS_BUTTON_HEIGHT)
+#define SYS_BUTTON_HEIGHT    60
+#endif
 
 enum 
 {
@@ -17,12 +20,14 @@ struct _GtkSysMenuPrivate
 {
     GdkWindow * event_window;
     GtkAllocation allocation;
+    GtkSysMenuItem ** childindex;
     gint        start, end; /* view-area start item and end item */
     GList     * children;
-    GtkSysMenuItem ** childindex;
     gint        selected;
+    gint        hover;
 	guint       amount;        /* items */ 
     gboolean    exceed;    /* Mark whether the amount of items exceed menu */
+    gint        monitor_width, monitor_height;
 };
 
 G_DEFINE_TYPE (GtkSysMenu, gtk_sys_menu, GTK_TYPE_WIDGET);
@@ -55,10 +60,12 @@ static void gtk_sys_menu_class_init (GtkSysMenuClass *klass)
 	widget_class->size_allocate = gtk_sys_menu_size_allocate;
 	widget_class->button_release_event = gtk_sys_menu_release_event;
 
+    /*
     g_signal_new ("user-selected", GTK_TYPE_SYS_MENU,
             G_SIGNAL_RUN_LAST, 0, NULL, NULL,
             g_cclosure_marshal_VOID__VOID,
             G_TYPE_NONE, 1, G_TYPE_POINTER);
+    */
 }
 
 static void gtk_sys_menu_init (GtkSysMenu *menu)
@@ -68,9 +75,10 @@ static void gtk_sys_menu_init (GtkSysMenu *menu)
 	menu->priv->start  = 0;
 	menu->priv->end    = 0;
 	menu->priv->amount = 0;
+	menu->priv->hover  = 0;
 	menu->priv->exceed = FALSE;
 	menu->priv->children = NULL;
-	menu->priv->selected = 0;
+	menu->priv->selected = -1;
 }
 
 static gboolean gtk_sys_menu_leave_notify (GtkWidget *widget, GdkEventCrossing *event)
@@ -133,7 +141,7 @@ static void gtk_sys_menu_realize (GtkWidget *widget)
         priv->allocation.width = MAX (priv->allocation.width, w);
         priv->selected = (*priv->childindex[i]).selected ? i : priv->selected;
     }
-} 
+}
 
 static void gtk_sys_menu_unrealize (GtkWidget *widget)
 {
@@ -155,34 +163,56 @@ static void gtk_sys_menu_map (GtkWidget *widget)
 static void gtk_sys_menu_unmap (GtkWidget *widget)
 {
 	gdk_window_hide (GTK_SYS_MENU(widget)->priv->event_window); 
+	GTK_SYS_MENU(widget)->priv->hover = -1; 
 	GTK_WIDGET_CLASS(gtk_sys_menu_parent_class)->unmap (widget);
 }
 
+/* 
+ * if user not SIZE-REQUEST or unreasonable,  the sysmenu have to adjust it 
+ * ::: x, y, width, height 
+ */
 static void gtk_sys_menu_size_allocate (GtkWidget *widget, GtkAllocation *allocation)
 {
     GtkSysMenuPrivate * priv = GTK_SYS_MENU(widget)->priv;
     guint height;
+    GdkRectangle rectangle;
+    GdkScreen  * screen;
 
-    priv->allocation.width = MAX (allocation->width, priv->allocation.width); 
-    priv->allocation.height = MAX (allocation->height, priv->amount * SYS_MENU_ITEM_HEIGHT);
-    if (priv->allocation.height > SCREEN_HEIGHT)
-    {
-        priv->allocation.height =  SCREEN_HEIGHT - 100;
-        priv->exceed = TRUE;
-    }
-    priv->start = 0;
-    height = priv->amount * SYS_MENU_ITEM_HEIGHT;
-    priv->end = ((height < priv->allocation.height) ? height : priv->allocation.height) / SYS_MENU_ITEM_HEIGHT;
-    priv->allocation.x = allocation->x;
-    priv->allocation.y = SCREEN_HEIGHT - priv->allocation.height - 80;
-    gtk_widget_set_allocation (widget, &priv->allocation);
     if (gtk_widget_get_realized (widget))
-        gdk_window_move_resize (GTK_SYS_MENU(widget)->priv->event_window,
+    {
+        screen = gdk_window_get_screen (priv->event_window);
+        gdk_screen_get_monitor_geometry (screen, gdk_screen_get_primary_monitor (screen), &rectangle);
+        priv->monitor_height = rectangle.height;
+        priv->monitor_width  = rectangle.width;
+        priv->allocation.width  = MAX (allocation->width, priv->allocation.width); 
+        priv->allocation.height = MAX (allocation->height, priv->amount * SYS_MENU_ITEM_HEIGHT);
+        
+        if (priv->allocation.height > priv->monitor_height)
+        {
+            priv->allocation.height = priv->monitor_height - SYS_BUTTON_HEIGHT;
+            priv->exceed = TRUE;
+        }
+        priv->allocation.y = priv->monitor_height - priv->allocation.height - SYS_BUTTON_HEIGHT;
+        if (allocation->x + priv->allocation.width > priv->monitor_width && allocation->x < priv->allocation.width)
+            priv->allocation.x = allocation->x - priv->allocation.width;
+        else
+            priv->allocation.x = allocation->x;
+
+        priv->start = 0;
+        height = priv->amount * SYS_MENU_ITEM_HEIGHT;
+        priv->end = ((height < priv->allocation.height) ? height : priv->allocation.height) / SYS_MENU_ITEM_HEIGHT;
+
+        gtk_widget_set_allocation (widget, &priv->allocation);
+        gdk_window_move_resize (priv->event_window,
                                 priv->allocation.x, 
                                 priv->allocation.y, 
                                 priv->allocation.width, 
                                 priv->allocation.height);
-    g_warning ("%d, %d, %d, %d",priv->allocation.x, priv->allocation.y, priv->allocation.width, priv->allocation.height);
+    }
+    else
+    {
+        gtk_widget_set_allocation (widget, allocation);
+    }
 }
 
 static gboolean gtk_sys_menu_draw (GtkWidget *widget, cairo_t *ctx)
@@ -202,16 +232,34 @@ static gboolean gtk_sys_menu_draw (GtkWidget *widget, cairo_t *ctx)
         pango_cairo_show_layout (ctx, (*priv->childindex[i]).layout);
     }
 
-    cairo_save (ctx);
-    cairo_rectangle (ctx, 0, (*priv->childindex[priv->selected]).y, priv->allocation.width, SYS_MENU_ITEM_HEIGHT);
-    cairo_clip (ctx);
-    cairo_set_source_rgba (ctx, 0.0, 0.0, 0.0, 0.8);
-    cairo_paint (ctx);
-    cairo_restore (ctx);
 
-    cairo_move_to (ctx, (*priv->childindex[priv->selected]).x, (*priv->childindex[priv->selected]).y);
-    cairo_set_source_rgb (ctx, 1.0, 1.0, 1.0);
-    pango_cairo_show_layout (ctx, (*priv->childindex[priv->selected]).layout);
+    if (priv->selected >= priv->start && priv->selected <= priv->end)
+    {
+        cairo_save (ctx);
+        cairo_rectangle (ctx, 0, (*priv->childindex[priv->selected]).y, priv->allocation.width, SYS_MENU_ITEM_HEIGHT);
+        cairo_clip (ctx);
+        cairo_set_source_rgba (ctx, 0.0, 0.0, 0.0, 0.9);
+        cairo_paint (ctx);
+        cairo_restore (ctx);
+
+        cairo_move_to (ctx, (*priv->childindex[priv->selected]).x, (*priv->childindex[priv->selected]).y);
+        cairo_set_source_rgb (ctx, 1.0, 1.0, 1.0);
+        pango_cairo_show_layout (ctx, (*priv->childindex[priv->selected]).layout);
+    }
+
+    if (priv->hover != -1)
+    {
+        cairo_save (ctx);
+        cairo_rectangle (ctx, 0, (*priv->childindex[priv->hover]).y, priv->allocation.width, SYS_MENU_ITEM_HEIGHT);
+        cairo_clip (ctx);
+        cairo_set_source_rgba (ctx, 0.0, 0.0, 0.0, 0.4);
+        cairo_paint (ctx);
+        cairo_restore (ctx);
+
+        cairo_move_to (ctx, (*priv->childindex[priv->hover]).x, (*priv->childindex[priv->hover]).y);
+        cairo_set_source_rgb (ctx, 1.0, 1.0, 1.0);
+        pango_cairo_show_layout (ctx, (*priv->childindex[priv->hover]).layout);
+    }
 
     cairo_restore (ctx);
     
@@ -224,10 +272,13 @@ static gboolean gtk_sys_menu_motion_notify_event (GtkWidget *widget, GdkEventMot
 
     if ((event->window != priv->event_window) || (event->y > (double)(priv->amount * SYS_MENU_ITEM_HEIGHT)))
         return FALSE;
-    priv->selected = event->y / SYS_MENU_ITEM_HEIGHT + priv->start;
-    (*priv->childindex[priv->selected]).selected = TRUE;
+    priv->hover = event->y / SYS_MENU_ITEM_HEIGHT + priv->start;
     gtk_widget_queue_draw (widget);
-    //gtk_widget_queue_draw_area (widget, 2, (int)(event->y / SYS_MENU_ITEM_HEIGHT) * SYS_MENU_ITEM_HEIGHT, SYS_MENU_ITEM_WIDTH, SYS_MENU_ITEM_HEIGHT);
+    /*
+     gtk_widget_queue_draw_area (widget, 2, 
+                 (int)(event->y / SYS_MENU_ITEM_HEIGHT) * SYS_MENU_ITEM_HEIGHT, 
+                 SYS_MENU_ITEM_WIDTH, SYS_MENU_ITEM_HEIGHT);
+    */
 
     return FALSE;
 }
@@ -236,14 +287,15 @@ static gboolean gtk_sys_menu_release_event (GtkWidget *widget, GdkEventButton *e
 {
     GtkSysMenuPrivate * priv = GTK_SYS_MENU(widget)->priv;
     gtk_widget_hide (widget);
-    GtkSysMenuItem selected_item;
-    selected_item = *priv->childindex[priv->selected];
-
+    GtkSysMenuItem *selected_item;
+    
+    priv->selected = event->y / SYS_MENU_ITEM_HEIGHT + priv->start;
+    (*priv->childindex[priv->selected]).selected = TRUE;
+    selected_item = priv->childindex[priv->selected];
     g_debug("RELEASE-ITEM: %s\n", (*priv->childindex[priv->selected]).text);
-    /* exec user's func, this help me forget the signal mechanism */
-    if (selected_item.func) 
+    if (selected_item->func) 
     {
-        selected_item.func (&selected_item, selected_item.user_data);
+        selected_item->func (selected_item, selected_item->func_data);
     }
     return FALSE;
 }
@@ -259,15 +311,28 @@ GtkWidget * gtk_sys_menu_new (GList * itemlist)
 	return  GTK_WIDGET(sysmenu);
 }
 
-GtkSysMenuItem * gtk_sys_menu_item_new (const char *text, void *func, gpointer user_data, gboolean selected)
+GtkSysMenuItem * gtk_sys_menu_item_new (const char *text, gpointer data, void *func, gpointer func_data, gboolean selected)
 {
     GtkSysMenuItem * item;
 
     item = (GtkSysMenuItem *)g_malloc0(sizeof(GtkSysMenuItem));
     item->text = text;
+    item->data = data;
     item->func = func;
-    item->user_data = user_data; 
+    item->func_data = func_data; 
     item->selected = selected;
-    /* the others had initialized as 0 */
+    
     return item;
+}
+
+const char * gtk_sys_menu_get_select_text (GtkSysMenu * menu)
+{
+    g_return_val_if_fail (GTK_IS_SYS_MENU(menu), NULL);
+    return (menu->priv->selected > -1 ) ? menu->priv->childindex[menu->priv->selected]->text: NULL;
+}
+
+gpointer gtk_sys_menu_get_select_data (GtkSysMenu * menu)
+{
+    g_return_val_if_fail (GTK_IS_SYS_MENU(menu), NULL);
+    return (menu->priv->selected > -1 ) ? menu->priv->childindex[menu->priv->selected]->data : NULL;
 }

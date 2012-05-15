@@ -21,11 +21,13 @@ typedef struct _GtkSysMenuPrivate       GtkSysMenuPrivate;
 struct _GtkSysMenuItem
 {
     const char  *text;
+    const char  *code;
     PangoLayout *layout;
-    void (* func) (GtkSysMenuItem *item, gpointer user_data); /* protype: void func (args ...); */
-    gpointer user_data;
+    void (* func) (GtkSysMenuItem *item, gpointer f_data); /* protype: void func (args ...); */
+    gpointer func_data;
 	gint x, y;
     gboolean  selected;
+    gpointer data;
 };
 
 struct _GtkSysMenu
@@ -45,8 +47,8 @@ struct _GtkSysMenuClass
 GType gtk_sys_menu_get_type (void);
 
 GtkWidget * gtk_sys_menu_new (GList * itemlist);
-GtkSysMenuItem * gtk_sys_menu_item_new (const char *text, void *func, gpointer user_data, gboolean selected);
-
-
+GtkSysMenuItem * gtk_sys_menu_item_new (const char *text, gpointer data, void *func, gpointer f_user_data, gboolean selected);
+const char * gtk_sys_menu_get_select_text (GtkSysMenu * menu);
+gpointer gtk_sys_menu_get_select_data (GtkSysMenu * menu);
 
 #endif /* __GTK_SYS_MENU_H__ */
