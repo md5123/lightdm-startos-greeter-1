@@ -1,18 +1,9 @@
 #include <gtk/gtk.h>
 #include "gtkclock.h"
 #include <time.h>
+#include <libintl.h>
 
-#define _ 
-
-gchar *weekday[] = {
-    _("Sunday"),
-    _("Monday"),
-    _("Tuesday"),
-    _("Wednesday"),
-    _("Thursday"),
-    _("Friday"),
-    _("Saturday")
-};
+gchar * weekday[7];
 
 struct _GtkClockPrivate
 {
@@ -44,42 +35,50 @@ static void gtk_clock_class_init (GtkClockClass *klass)
 static void gtk_clock_init (GtkClock *clock)
 {
 	clock->priv = GTK_CLOCK_GET_PRIVATE (clock);
-    clock->priv->secflash = FALSE;
+    clock->priv->secflash = TRUE;
     clock->priv->time = NULL;
     clock->priv->week = NULL;
     gtk_widget_set_has_window (GTK_WIDGET(clock), FALSE);
+
+    weekday[0] = gettext("Sunday");
+    weekday[1] = gettext("Monday");
+    weekday[2] = gettext("Tuesday");
+    weekday[3] = gettext("Wednesday");
+    weekday[4] = gettext("Thursday");
+    weekday[5] = gettext("Friday");
+    weekday[6] = gettext("Saturday");
 }
 
 static void gtk_clock_realize (GtkWidget *widget)
 {
     GtkClock *clock = GTK_CLOCK(widget);
 	GTK_WIDGET_CLASS(gtk_clock_parent_class)->realize (widget); 
-    clock->priv->timeout_id   = g_timeout_add(500, (GSourceFunc)update_time, clock);
+    clock->priv->timeout_id   = g_timeout_add(60000, (GSourceFunc)update_time, clock);
 }
 
 static gboolean update_time (GtkClock *clock)
 {
-    struct tm *tms;
-    time_t t;
-
     if (!gtk_widget_get_realized (GTK_WIDGET(clock))) 
         return TRUE;
-    g_free(clock->priv->time);
-    t = time (NULL);
-    tms = localtime(&t);
-    clock->priv->time = 
-        g_strdup_printf ("%.2d%c%.2d", tms->tm_hour, clock->priv->secflash ? ':' : ' ', tms->tm_min);
-    clock->priv->secflash = !clock->priv->secflash;
-    clock->priv->week = weekday[tms->tm_wday];
-	gtk_widget_queue_draw (GTK_WIDGET(clock));
+    gtk_widget_queue_draw (GTK_WIDGET(clock));
+    //clock->priv->secflash = !clock->priv->secflash;
     return TRUE;
 }
 
 static gboolean gtk_clock_draw (GtkWidget *widget, cairo_t *ctx)
 {
 
+    struct tm *tms;
+    time_t t;
 	GtkClockPrivate *priv = GTK_CLOCK(widget)->priv;
-    
+
+    g_free(priv->time);
+    t = time (NULL);
+    tms = localtime(&t);
+    priv->time = 
+        g_strdup_printf ("%.2d%c%.2d", tms->tm_hour, priv->secflash ? ':' : ' ', tms->tm_min);
+    priv->week = weekday[tms->tm_wday];
+
     cairo_set_source_rgba (ctx, 0.0, 0.0, 0.0, 0.4);
     cairo_paint (ctx);
 

@@ -1,0 +1,74 @@
+# Chinese translations for y-greeter package
+# y-greeter 软件包的简体中文翻译.
+# Copyright (C) 2012 THE y-greeter'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the y-greeter package.
+# root <root@localhost.localdomain>, 2012.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: y-greeter\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2012-05-25 11:14+0800\n"
+"PO-Revision-Date: 2012-05-21 11:37+0800\n"
+"Last-Translator: root <root@localhost.localdomain>\n"
+"Language-Team: Chinese (simplified)\n"
+"Language: zh_CN\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: ../src/backend.c:132
+msgid "Authenticated Failed, Try Again"
+msgstr "验证失败,请重试"
+
+#: ../src/gtkclock.c:43
+msgid "Sunday"
+msgstr "星期日"
+
+#: ../src/gtkclock.c:44
+msgid "Monday"
+msgstr "星期一"
+
+#: ../src/gtkclock.c:45
+msgid "Tuesday"
+msgstr "星期二"
+
+#: ../src/gtkclock.c:46
+msgid "Wednesday"
+msgstr "星期三"
+
+#: ../src/gtkclock.c:47
+msgid "Thursday"
+msgstr "星期四"
+
+#: ../src/gtkclock.c:48
+msgid "Friday"
+msgstr "星期五 "
+
+#: ../src/gtkclock.c:49
+msgid "Saturday"
+msgstr "星期六"
+
+#: ../src/gtkloginbox.c:110
+msgid "Login"
+msgstr "登录"
+
+#: ../src/gtkloginbox.c:120
+msgid "User Name"
+msgstr "用户名"
+
+#: ../src/ui.c:424
+msgid "shutdown"
+msgstr "关机"
+
+#: ../src/ui.c:429
+msgid "restart"
+msgstr "重启"
+
+#: ../src/ui.c:434
+msgid "suspend"
+msgstr "挂起"
+
+#: ../src/ui.c:439
+msgid "hibernate"
+msgstr "休眠"

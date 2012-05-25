@@ -13,6 +13,7 @@ static void gtk_prompt_class_init (GtkPromptClass * klass);
 static void gtk_prompt_init (GtkPrompt * prompt);
 static gboolean gtk_prompt_draw (GtkWidget * widget, cairo_t * ctx);
 static void gtk_prompt_realize (GtkWidget * widget);
+static void gtk_prompt_size_allocate (GtkWidget * widget, GtkAllocation * allocation);
 
 static void gtk_prompt_class_init (GtkPromptClass * klass)
 {
@@ -20,6 +21,7 @@ static void gtk_prompt_class_init (GtkPromptClass * klass)
     g_type_class_add_private (klass, sizeof (GtkPromptPrivate));
     widget_class->draw = gtk_prompt_draw;
     widget_class->realize = gtk_prompt_realize;
+    widget_class->size_allocate = gtk_prompt_size_allocate;
 }
 
 static void gtk_prompt_init (GtkPrompt * prompt)
@@ -47,10 +49,9 @@ static gboolean gtk_prompt_draw (GtkWidget * widget, cairo_t * ctx)
     cairo_stroke_preserve (ctx);
 	cairo_set_source_rgb (ctx, 245 / 255.0, 207 / 255.0, 72 / 255.0);
 	cairo_fill (ctx);
-
+    
     cairo_translate (ctx, 0, 3); 
     GTK_WIDGET_CLASS(gtk_prompt_parent_class)->draw (widget, ctx);
-
     cairo_restore (ctx);
 
     return FALSE;
@@ -58,10 +59,21 @@ static gboolean gtk_prompt_draw (GtkWidget * widget, cairo_t * ctx)
 
 static void gtk_prompt_realize (GtkWidget * widget)
 {
+    GdkWindow * parent_window ;
     GtkPromptPrivate * priv = GTK_PROMPT(widget)->priv;
 
+    gtk_widget_set_realized (widget, TRUE);
     GTK_WIDGET_CLASS(gtk_prompt_parent_class)->realize (widget);
     gtk_widget_get_allocation (widget, &priv->allocation);
+
+    parent_window = gtk_widget_get_parent_window (widget);
+    gtk_widget_set_window (widget, parent_window);
+
+}
+
+static void gtk_prompt_size_allocate (GtkWidget * widget, GtkAllocation * allocation)
+{
+    gtk_widget_set_allocation (widget, allocation);
 }
 
 GtkWidget * gtk_prompt_new(const gchar *text)

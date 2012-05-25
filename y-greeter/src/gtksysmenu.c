@@ -10,10 +10,16 @@
 #define SYS_BUTTON_HEIGHT    60
 #endif
 
-enum 
+typedef enum 
 {
     USER_SELECTED,
     LAST_SIGNAL
+}ScrollOrientation;
+
+enum 
+{
+    SCROLL_DOWN,
+    SCROLL_UP
 };
 
 struct _GtkSysMenuPrivate
@@ -25,7 +31,7 @@ struct _GtkSysMenuPrivate
     GList     * children;
     gint        selected;
     gint        hover;
-	guint       amount;        /* items */ 
+	gint        amount;        /* items */ 
     gboolean    exceed;    /* Mark whether the amount of items exceed menu */
     gint        monitor_width, monitor_height;
 };
@@ -44,7 +50,23 @@ static gboolean gtk_sys_menu_draw (GtkWidget *widget, cairo_t *ctx);
 static gboolean gtk_sys_menu_leave_notify (GtkWidget *widget, GdkEventCrossing *event);
 static gboolean gtk_sys_menu_motion_notify_event (GtkWidget *widget, GdkEventMotion *event);
 static gboolean gtk_sys_menu_release_event (GtkWidget *widget, GdkEventButton *event);
+static gboolean gtk_sys_menu_key_press_event (GtkWidget * widget, GdkEventKey * event);
 
+static gboolean gtk_sys_menu_focus_in (GtkWidget * widget, GdkEventFocus * event);
+static gboolean gtk_sys_menu_focus_out (GtkWidget * widget, GdkEventFocus * event);
+static void scroll_sys_menu (GtkSysMenuItem ** item, gint start, gint end, ScrollOrientation op);
+
+static gboolean gtk_sys_menu_focus_in (GtkWidget * widget, GdkEventFocus * event)
+{
+    g_warning ("%-3d | fuck here %s:%s - %s\n", __LINE__, __FILE__, __func__, "focus in");
+    return FALSE;
+}
+
+static gboolean gtk_sys_menu_focus_out (GtkWidget * widget, GdkEventFocus * event)
+{
+    g_warning ("%-3d | fuck here %s:%s - %s\n", __LINE__, __FILE__, __func__, "focus out");
+    return FALSE;
+}
 
 static void gtk_sys_menu_class_init (GtkSysMenuClass *klass)
 {
@@ -59,6 +81,10 @@ static void gtk_sys_menu_class_init (GtkSysMenuClass *klass)
 	widget_class->unmap = gtk_sys_menu_unmap;
 	widget_class->size_allocate = gtk_sys_menu_size_allocate;
 	widget_class->button_release_event = gtk_sys_menu_release_event;
+	widget_class->key_press_event = gtk_sys_menu_key_press_event;
+
+	widget_class->focus_in_event = gtk_sys_menu_focus_in;
+	widget_class->focus_out_event = gtk_sys_menu_focus_out;
 
     /*
     g_signal_new ("user-selected", GTK_TYPE_SYS_MENU,
@@ -71,11 +97,13 @@ static void gtk_sys_menu_class_init (GtkSysMenuClass *klass)
 static void gtk_sys_menu_init (GtkSysMenu *menu)
 {
 	menu->priv = GTK_SYS_MENU_GET_PRIVATE (menu);
+    gtk_widget_set_can_focus (GTK_WIDGET(menu), TRUE);
+    gtk_widget_set_receives_default (GTK_WIDGET(menu), TRUE);
     gtk_widget_set_has_window (GTK_WIDGET(menu), FALSE); 
 	menu->priv->start  = 0;
 	menu->priv->end    = 0;
 	menu->priv->amount = 0;
-	menu->priv->hover  = 0;
+	menu->priv->hover  = -1;
 	menu->priv->exceed = FALSE;
 	menu->priv->children = NULL;
 	menu->priv->selected = -1;
@@ -108,9 +136,12 @@ static void gtk_sys_menu_realize (GtkWidget *widget)
 	attributes.event_mask  = gtk_widget_get_events (widget) | 
                              GDK_BUTTON_RELEASE_MASK |
                              GDK_BUTTON_PRESS_MASK |
+                             GDK_KEY_RELEASE_MASK |
+                             GDK_KEY_PRESS_MASK |
                              GDK_EXPOSURE_MASK |
                              GDK_POINTER_MOTION_MASK |
                              GDK_POINTER_MOTION_HINT_MASK |
+                             GDK_FOCUS_CHANGE_MASK |
                              GDK_LEAVE_NOTIFY_MASK;
 
     attributes_mask = GDK_WA_X | GDK_WA_Y;
@@ -124,7 +155,6 @@ static void gtk_sys_menu_realize (GtkWidget *widget)
     /*
      * 使用指针数组,加快item定位速度 
      */
-
     GList *item;
     int i = 0;
     int w;
@@ -151,6 +181,8 @@ static void gtk_sys_menu_unrealize (GtkWidget *widget)
 	priv->event_window = NULL;
     g_free (priv->childindex);
     priv->childindex = NULL;
+    g_list_free_full (priv->children, g_free);
+    priv->children = NULL;
 	GTK_WIDGET_CLASS(gtk_sys_menu_parent_class)->unrealize (widget);
 }
 
@@ -208,6 +240,7 @@ static void gtk_sys_menu_size_allocate (GtkWidget *widget, GtkAllocation *alloca
                                 priv->allocation.y, 
                                 priv->allocation.width, 
                                 priv->allocation.height);
+
     }
     else
     {
@@ -298,6 +331,79 @@ static gboolean gtk_sys_menu_release_event (GtkWidget *widget, GdkEventButton *e
         selected_item->func (selected_item, selected_item->func_data);
     }
     return FALSE;
+}
+
+static gboolean gtk_sys_menu_key_press_event (GtkWidget * widget, GdkEventKey * event)
+{
+    GtkSysMenuPrivate * priv = GTK_SYS_MENU(widget)->priv;
+    switch (event->hardware_keycode)
+    {
+        case 111: if (priv->hover > 0)
+                  {
+                      --priv->hover; 
+                      if (priv->hover < priv->start && priv->start > -1)
+                      {
+                          --priv->start;
+                          g_warning (" UP S=%d, E=%d", priv->start, priv->end);
+                          scroll_sys_menu (priv->childindex, priv->start, priv->end, SCROLL_UP);
+                          --priv->end;
+                      }
+
+                  }
+                  else if (priv->hover == -1)
+                      priv->hover = priv->end - 1;
+                  break;
+
+        case 116: if (priv->hover < priv->amount - 1)
+                  {
+                      ++priv->hover;
+                      if (priv->hover > priv->end && priv->end < priv->amount - 1)
+                      {
+                          ++priv->end;
+                          scroll_sys_menu (priv->childindex, priv->start, priv->end, SCROLL_DOWN);
+                          ++priv->start;
+                      } 
+                  }
+                  break;
+
+        case 36:
+        case 104: priv->selected = priv->hover;
+                  gtk_widget_hide (widget);
+                  (*priv->childindex[priv->selected]).selected = TRUE;
+                  GtkSysMenuItem * selected_item = priv->childindex[priv->selected];
+                  if (selected_item->func) 
+                  {
+                      selected_item->func (selected_item, selected_item->func_data);
+                  }
+                  break;
+    }
+
+    
+
+    gtk_widget_queue_draw (widget);
+    return FALSE;
+}
+
+static void scroll_sys_menu (GtkSysMenuItem ** item, gint start, gint end, ScrollOrientation op)
+{
+    switch (op)
+    {
+        case SCROLL_UP: 
+            while (start < end)
+            {
+                (*item[start]).y += SYS_MENU_ITEM_HEIGHT;
+                ++start;
+            }
+            break;
+
+        case SCROLL_DOWN:
+            while (start < end)
+            {
+                (*item[start]).y -= SYS_MENU_ITEM_HEIGHT;
+                ++start;
+            }
+            break;
+    }
 }
 
 GtkWidget * gtk_sys_menu_new (GList * itemlist)

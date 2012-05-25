@@ -52,9 +52,19 @@ struct  _ui_widgets
 };
 
 GtkWidget * ui_make_root_win (void);
+void ui_finalize (void);
 void ui_set_prompt_text(const char *prompt, int type);
 gpointer ui_get_session (void);
 gpointer ui_get_language (void);
 gpointer ui_get_keyboard_layout (void);
+
+
+
+
+
+
+
+
+
 #endif /* __UI_H__ */
 

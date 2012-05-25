@@ -35,5 +35,6 @@ GType gtk_userface_get_type ();
 GtkWidget * gtk_userface_new (const char *face_path, const char *username);
 
 const gchar * gtk_userface_get_name (GtkUserface * userface);
+const gchar * gtk_userface_get_facepath (GtkUserface * userface);
 const GdkPixbuf * gtk_userface_get_facepixbuf (GtkUserface * userface);
 #endif /* __GTK_USERFACE_H__ */

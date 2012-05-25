@@ -1,5 +1,5 @@
-#include "config.h"
 #include <gtk/gtk.h>
+#include <glib/gi18n.h>
 #include <lightdm.h>
 #include "ui.h"
 #include "gtkloginbox.h"
@@ -13,19 +13,21 @@
 #define LDM_SUSPEND   "suspend"
 #define LDM_HIBERNATE "hibernate"
 
-#define LOGIN_BOX_WIDTH 680
-#define LOGIN_BOX_HEIGHT 120
-#define USER_FACE_SPACING 6
-#define USER_FACE_WIDTH 36
-#define USER_FACE_HEIGHT 50
-#define SYS_BUTTON_WIDTH 36
-#define SYS_BUTTON_HEIGHT 36
+#define LOGIN_BOX_WIDTH     680
+#define LOGIN_BOX_HEIGHT    120
+#define USER_FACE_SPACING   6
+#define USER_FACE_WIDTH     36
+#define USER_FACE_HEIGHT    50
+#define SYS_BUTTON_WIDTH    36
+#define SYS_BUTTON_HEIGHT   36
 
 
-static GdkRectangle monitor_geometry;
-static _ui_widgets 	ui_widgets;
+GdkRectangle monitor_geometry;
+_ui_widgets 	ui_widgets;
 
-
+GdkRGBA bg_color;
+GdkPixbuf * bg_pixbuf = NULL;
+GdkPixbuf * bg_scale_pixbuf = NULL;
 
 static GtkWidget * ui_init_win (void);
 static void ui_monitors_changed_cb (GdkScreen *screen, gpointer data);
@@ -45,21 +47,26 @@ static GtkWidget * make_power_menu (void);
 static GtkWidget * make_lang_menu (void);
 static GtkWidget * make_session_menu (void);
 static GtkWidget * make_keyboard_menu (void);
+static gboolean popup_sys_menu (GtkWidget *widget, GdkEvent *event, gpointer data);
+static GtkWidget * make_user_item (LightDMUser *user);
 
 static void power_control_panel (GtkSysMenuItem *selected_item, const gchar *op);
 static void keyboard_changed_cb (GtkSysMenuItem * item, gpointer data);
-static gboolean popup_sys_menu (GtkWidget *widget, GdkEvent *event, gpointer data);
-static GtkWidget * make_user_item (LightDMUser *user);
 static void user_added_cb (LightDMUserList * list, LightDMUser *user);
 static void user_changed_cb (LightDMUserList * list, LightDMUser *user);
 static void user_removed_cb (LightDMUserList * list, LightDMUser *user);
 
 static void login_box_input_ready_cb (GtkLoginBox *box, const gchar *text, gpointer data);
+static void login_box_update_face_cb (GtkLoginBox *box, const gchar *username, gpointer data);
 static void userface_release_cb (GtkWidget * widget, gpointer data);
 static GtkFixed * make_users_table (GList *userlist);
 static GtkWidget * make_sys_button (const gchar *imgpath, _sys_button *bt);
 
 static void update_userface_size_allocation (void);
+
+static void set_last_user (void);
+
+static gboolean sys_menu_hide (GtkWidget *widget, GdkEvent *event, gpointer data);
 
 
 GtkWidget * ui_make_root_win ()
@@ -70,7 +77,7 @@ GtkWidget * ui_make_root_win ()
 	win = ui_init_win ();
 	fixed = gtk_fixed_new ();
 	gtk_container_add (GTK_CONTAINER(win), fixed);
-
+    
 	init_ui_widget ();
 
 	install_login_box (GTK_FIXED(fixed));
@@ -80,7 +87,7 @@ GtkWidget * ui_make_root_win ()
  	install_keyboard_button (GTK_FIXED(fixed));
  	install_session_button (GTK_FIXED(fixed));
     install_clock_label (GTK_FIXED(fixed));
-    /* don't forgot free memory for 4 g_list  */
+    set_last_user ();
 
 	return win;
 }
@@ -88,6 +95,9 @@ GtkWidget * ui_make_root_win ()
 static GtkWidget * ui_init_win ()
 {
 	GtkWidget *win;
+
+    backend_get_conf_background (&bg_pixbuf, &bg_color);
+
 	win = gtk_window_new (GTK_WINDOW_TOPLEVEL);
 	g_signal_connect (G_OBJECT(gtk_window_get_screen(GTK_WINDOW(win))), 
                                "monitors-changed", G_CALLBACK(ui_monitors_changed_cb), win);
@@ -110,22 +120,23 @@ static void ui_monitors_changed_cb (GdkScreen *screen, gpointer data)
 									&monitor_geometry);
 	gtk_window_move (win, 0, 0);
 	gtk_window_resize (win, monitor_geometry.width, monitor_geometry.height);
+
+    if (bg_pixbuf)
+    {
+        bg_scale_pixbuf = gdk_pixbuf_scale_simple (bg_pixbuf, monitor_geometry.width, monitor_geometry.height, GDK_INTERP_BILINEAR);
+    }
 }
 
 static gboolean ui_draw_cb (GtkWindow *window, cairo_t *ctx, gpointer data)
 {
-    GdkRGBA bg_color;
-    GdkPixbuf * bg_pixbuf = NULL;
-    backend_get_conf_background (&bg_pixbuf, &bg_color);
 
-    if (bg_pixbuf)
+    if (bg_scale_pixbuf)
     {
-        GdkPixbuf *pixbuf = gdk_pixbuf_scale_simple (bg_pixbuf, monitor_geometry.width, monitor_geometry.height, GDK_INTERP_BILINEAR);
-        gdk_cairo_set_source_pixbuf (ctx, pixbuf, 0.0, 0.0);
-        g_object_unref (pixbuf);
+        gdk_cairo_set_source_pixbuf (ctx, bg_scale_pixbuf, 0.0, 0.0);
     }
     else
         gdk_cairo_set_source_rgba (ctx, &bg_color);
+
     cairo_paint(ctx);
 
     return FALSE;
@@ -135,6 +146,7 @@ static void install_login_box  (GtkFixed *fixed)
 {
 	GtkWidget *box = gtk_login_box_new ();
 	g_signal_connect (G_OBJECT(box), "input-ready", G_CALLBACK(login_box_input_ready_cb), NULL);
+	g_signal_connect (G_OBJECT(box), "update-face", G_CALLBACK(login_box_update_face_cb), NULL);
 	gtk_widget_set_size_request (box, ui_widgets.loginbox.w, ui_widgets.loginbox.h);
 	ui_widgets.loginbox.loginbox = GTK_LOGIN_BOX(box);
 	gtk_fixed_put (fixed, box, ui_widgets.loginbox.x, ui_widgets.loginbox.y);
@@ -144,13 +156,35 @@ static void login_box_input_ready_cb (GtkLoginBox *box, const gchar *text, gpoin
 {
 	backend_authenticate_process (text);
 	gtk_login_box_set_input (box, "");
+    gtk_widget_set_sensitive (GTK_WIDGET(box), FALSE);
 }
 
+static void login_box_update_face_cb (GtkLoginBox *box, const gchar *username, gpointer data)
+{
+    GList * item = ui_widgets.userstable.userlist;
+    const gchar * name;
+
+    g_return_if_fail (username);
+
+    for (; item; item = item->next)
+    {
+        name = gtk_userface_get_name (GTK_USERFACE(item->data));
+        if (!g_strcmp0 (username, name))
+            break ;
+    }
+    if (!item)
+        return ;
+    gtk_login_box_update_face_name (ui_widgets.loginbox.loginbox, 
+            (GdkPixbuf *)gtk_userface_get_facepixbuf (item->data),
+            NULL);
+}
 
 void ui_set_prompt_text(const char *prompt, int type)
 {
 	gtk_login_box_set_prompt (ui_widgets.loginbox.loginbox, prompt);
     gtk_login_box_set_input_visible (ui_widgets.loginbox.loginbox, type == 0);
+    gtk_widget_set_sensitive (GTK_WIDGET(ui_widgets.loginbox.loginbox), TRUE);
+    gtk_login_box_set_input_focus (ui_widgets.loginbox.loginbox);
 }
 
 
@@ -228,7 +262,7 @@ USER_ITEM_FOUND:
     gtk_widget_destroy (GTK_WIDGET(item->data));
     ui_widgets.userstable.userlist = g_list_remove (ui_widgets.userstable.userlist, item);
     /* FIXME:
-     * I am not sure if the list and its item address will change or net,
+     * I am not sure weather the list and its item address will change or not
      * when remove one of its item. 
      * SO, I update all the remaining USERFACE
      */
@@ -268,7 +302,6 @@ static GtkFixed * make_users_table (GList *userlist)
     guint i = 0;
 
     fixed = (GtkFixed *)gtk_fixed_new ();
-	gtk_container_set_reallocate_redraws (GTK_CONTAINER(fixed), TRUE);
     for (i = 0; userlist; userlist = userlist->next, i++)
     {
         user = userlist->data;
@@ -322,10 +355,20 @@ static void install_power_button (GtkFixed *fixed)
     GtkWidget *pw; 
 
     ui_widgets.power.menu = make_power_menu ();
-    gtk_widget_set_size_request (ui_widgets.power.menu, 80, 0); /* when y set to 0, sys menu will adjusts it-self */
+	g_signal_connect (ui_widgets.power.menu, "focus-out-event", 
+            G_CALLBACK(sys_menu_hide), NULL);
+    gtk_widget_set_size_request (ui_widgets.power.menu, 80, 0); /* Don't worry about y set to 0, sys menu will adjusts automatically */
     pw = make_sys_button (GREETER_DATA_DIR"power.png", &ui_widgets.power);
 	ui_widgets.power.button = GTK_EVENT_BOX(pw);
     gtk_fixed_put (fixed, pw, ui_widgets.power.x, ui_widgets.power.y);
+}
+
+gboolean sys_menu_hide (GtkWidget *widget, GdkEvent *event, gpointer data)
+{
+    g_warning ("hi ,,, Focus Out \n");
+    gtk_widget_hide (widget);
+
+    return FALSE;
 }
 
 static void install_lang_button (GtkFixed *fixed)
@@ -397,14 +440,6 @@ static GtkWidget * make_power_menu ()
 		list = g_list_append (list, item);
 	}
     
-    /* Position menu (ui_widgets.power.menu_x, ui_widgets.power.menu_y) */
-
-    /* 
-    gint x = 0, y = 0;
-    x = (ui_widgets.power.x + 80 > monitor_geometry.width) ?  monitor_geometry.width - 85 : 
-                                ui_widgets.power.x;
-    y = 10;
-    */
     ui_widgets.power.menu_x = 10;
     ui_widgets.power.menu_y = 10;
 
@@ -460,18 +495,23 @@ static GtkWidget * make_lang_menu ()
 	GList * itemlist = NULL;
 	GList * langlist = NULL;
 	GtkSysMenuItem * item;
+    gchar * last_lang_key = backend_state_file_get_language ();
+    
 
     langlist = lightdm_get_languages ();
     for (; langlist; langlist = langlist->next)
     {
         LightDMLanguage *lang = (LightDMLanguage *)(langlist->data);
+        const gchar * lang_key = lightdm_language_get_code (lang);
 
         item = gtk_sys_menu_item_new (lightdm_language_get_name (lang),
-                (gpointer)lightdm_language_get_code (lang),
-                NULL, NULL, FALSE);
+                                      (gpointer)lang_key,
+                                      NULL, NULL, 
+                                      g_strcmp0(lang_key, last_lang_key) == 0);
         itemlist = g_list_append (itemlist, item);
     }
     
+    g_free (last_lang_key);
     gint x = 0, y = 0;
     x = (ui_widgets.language.x + 80 > monitor_geometry.width) ?  monitor_geometry.width - 85 : 
                                 ui_widgets.language.x;
@@ -487,23 +527,28 @@ static GtkWidget * make_session_menu ()
 	GList * itemlist = NULL;
 	GList * sessionlist = NULL;
 	GtkSysMenuItem * item;
+    gchar * last_session_key = backend_state_file_get_session ();
 
     sessionlist = lightdm_get_sessions ();
     for (; sessionlist; sessionlist = sessionlist->next)
     {
         LightDMSession *session = (LightDMSession *)(sessionlist->data);
+        const gchar * session_key = lightdm_session_get_key (session);
         item = gtk_sys_menu_item_new (lightdm_session_get_name (session),
-                                      (gpointer)lightdm_session_get_key (session),
-                                      NULL, NULL, FALSE);
+                                      (gpointer)session_key,
+                                      NULL, NULL, 
+                                      g_strcmp0(session_key, last_session_key) == 0);
         itemlist = g_list_append (itemlist, item);
     }
     
+    g_free (last_session_key);
     gint x = 0, y = 0;
     x = (ui_widgets.session.x + 80 > monitor_geometry.width) ?  monitor_geometry.width - 85 : 
                                 ui_widgets.session.x;
     y = 180;
     ui_widgets.session.menu_x = x;
     ui_widgets.session.menu_y = y;
+
 
 	return gtk_sys_menu_new(itemlist);
 }
@@ -513,18 +558,22 @@ static GtkWidget * make_keyboard_menu ()
 	GList * itemlist = NULL;
 	GList * keyboardlist = NULL;
 	GtkSysMenuItem * item;
+    gchar * last_kb_name = backend_state_file_get_keyboard ();
 
     keyboardlist = lightdm_get_layouts ();
     for (; keyboardlist; keyboardlist = keyboardlist->next)
     {
-        LightDMLayout *keyboard = (LightDMLayout *)(keyboardlist->data);
-        item = gtk_sys_menu_item_new (lightdm_layout_get_name (keyboard), 
+        LightDMLayout * keyboard = (LightDMLayout *)(keyboardlist->data);
+        const gchar * kb_name = lightdm_layout_get_name (keyboard);
+        item = gtk_sys_menu_item_new (kb_name, 
                                       keyboard, 
                                       keyboard_changed_cb, 
-                                      NULL, FALSE);
+                                      NULL, 
+                                      g_strcmp0(kb_name, last_kb_name) == 0);
         itemlist = g_list_append (itemlist, item);
     }
     
+    g_free (last_kb_name);
     gint x = 0, y = 0;
     x = (ui_widgets.keyboard.x + 80 > monitor_geometry.width) ?  monitor_geometry.width - 85 : 
                                 ui_widgets.keyboard.x;
@@ -538,6 +587,48 @@ static GtkWidget * make_keyboard_menu ()
 static void keyboard_changed_cb (GtkSysMenuItem * item, gpointer data)
 {
     lightdm_set_layout ((LightDMLayout *)(item->data));
+    backend_state_file_set_keyboard (lightdm_layout_get_name ((LightDMLayout *)(item->data)));
+}
+
+static void set_last_user ()
+{
+    char * last_user_name = backend_state_file_get_user ();
+    GList * item = ui_widgets.userstable.userlist;
+    const gchar * facepath = NULL;
+    const gchar * name = NULL;
+    GdkPixbuf * pixbuf = NULL;
+
+    if (!last_user_name || !item)
+        return ;
+
+    while (item) 
+    {
+        name = gtk_userface_get_name (GTK_USERFACE(item->data));
+        if (!g_strcmp0 (last_user_name, name))
+        {
+            break ;
+        }
+        item = item->next;
+    }
+    g_free (last_user_name);
+    if (!item)
+        return ;
+    backend_authenticate_username_only (name);
+
+    /*  
+     * Before GtkUserface realize (show), image not convet to pixbuf yet, 
+     * so we have to do it .
+     */
+    if ((facepath = gtk_userface_get_facepath ((GTK_USERFACE(item->data)))))
+	{
+		if (!(pixbuf = gdk_pixbuf_new_from_file (facepath, NULL)))
+        {
+            g_debug("Open face image \"%s\"faild !\n", facepath);
+        }
+	}
+    gtk_login_box_update_face_name (ui_widgets.loginbox.loginbox, 
+            pixbuf, name);
+    gtk_login_box_set_input (ui_widgets.loginbox.loginbox, "");
 }
 
 gpointer ui_get_language ()
@@ -575,4 +666,9 @@ static void init_ui_widget()
     ui_widgets.clock.h = 100;
     ui_widgets.clock.x = monitor_geometry.width - 250;
     ui_widgets.clock.y = monitor_geometry.height - 150;
+}
+
+void ui_finalize ()
+{
+    g_list_free (ui_widgets.userstable.userlist);
 }

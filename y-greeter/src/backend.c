@@ -1,4 +1,4 @@
-#include "config.h"
+#include <glib/gi18n.h>
 #include "backend.h"
 #include "ui.h"
 #include <gdk/gdkx.h>
@@ -8,7 +8,8 @@
 
 typedef struct _backend_componet backend_componet;
 
-static backend_componet back;
+backend_componet back;
+gboolean has_prompted = FALSE;
 
 static void backend_open_config (void);
 static void backend_open_state (void);
@@ -22,14 +23,15 @@ static cairo_surface_t * backend_create_root_surface (GdkScreen *screen);
 
 static void show_prompt_cb (LightDMGreeter *greeter, const gchar *prompt, LightDMPromptType type)
 {
-	g_warning ("Prompt --- %s, T = %d\n", prompt, type);
-    ui_set_prompt_text (prompt, type);
+    if (!has_prompted)
+    {
+        ui_set_prompt_text (dgettext("Linux-PAM", prompt), type);
+    }
 }
 
 static void show_message_cb (LightDMGreeter *greeter, const gchar *message, LightDMMessageType type)
 {
-	g_warning ("Message --- %s, T = %d\n", message, type);
-	ui_set_prompt_text (message, type);
+	ui_set_prompt_text (dgettext("Linux-PAM", message), type);
 }
 
 static void start_session ()
@@ -40,20 +42,82 @@ static void start_session ()
 
     session = ui_get_session ();
     language = ui_get_language ();
-    language ? g_warning ("Get language NULL, use default") : lightdm_greeter_set_language (back.greeter, language);
+
+    backend_state_file_set_language (language);
+    backend_state_file_set_session (session);
+    
+
+    language ? lightdm_greeter_set_language (back.greeter, language) : g_warning ("Get language NULL, use default"); 
     if (!session)
     {
         g_warning ("Get session NULL, use default");
     }
     g_warning ("lang = %s, session = %s", language, session);
 
-    if (!lightdm_greeter_start_session_sync (back.greeter, session, &error))
+    if (!lightdm_greeter_start_session_sync (back.greeter, NULL, &error))
     {
-        ui_set_prompt_text (_("Failed to starting session"), 0);
         g_warning ("Starting session: %s\n", error->message);
         g_clear_error (&error);
     }
 }
+
+void backend_state_file_set_session (const char * session)
+{
+    gsize length;
+    char * data;
+    g_return_if_fail (session);
+    g_key_file_set_value (back.statekeyfile, "greeter", "last-session", session);
+    data = g_key_file_to_data (back.statekeyfile, &length, NULL);
+    g_warning ("Put session to state file: %s\n", session);
+    g_file_set_contents (back.statefile, data, length, NULL);
+    g_free (data);
+}
+
+void backend_state_file_set_language (const char * lang)
+{
+    gsize length;
+    char * data;
+    g_return_if_fail (lang);
+    g_key_file_set_value (back.statekeyfile, "greeter", "last-language", lang);
+    data = g_key_file_to_data (back.statekeyfile, &length, NULL);
+    g_warning ("Put language to state file: %s\n", lang);
+    g_file_set_contents (back.statefile, data, length, NULL);
+    g_free (data);
+}
+
+
+void backend_state_file_set_keyboard (const char * kb)
+{
+    char * data;
+    gsize length;
+    g_return_if_fail (kb);
+    g_key_file_set_value (back.statekeyfile, "greeter", "last-keyboard", kb);
+    data = g_key_file_to_data (back.statekeyfile, &length, NULL);
+    g_warning ("Put keyboard to state file: %s\n", kb);
+    g_file_set_contents (back.statefile, data, length, NULL);
+    g_free (data);
+}
+
+gchar * backend_state_file_get_session  ()
+{
+    return g_key_file_get_value (back.statekeyfile, "greeter", "last-session", NULL);
+}
+
+gchar * backend_state_file_get_language (void)
+{
+    return g_key_file_get_value (back.statekeyfile, "greeter", "last-language", NULL);
+}
+
+gchar * backend_state_file_get_keyboard (void)
+{
+    return g_key_file_get_value (back.statekeyfile, "greeter", "last-keyboard", NULL);
+}
+
+gchar * backend_state_file_get_user (void)
+{
+    return g_key_file_get_value (back.statekeyfile, "greeter", "last-user", NULL);
+}
+
 
 static void authentication_complete_cb (LightDMGreeter *greeter)
 {
@@ -65,15 +129,22 @@ static void authentication_complete_cb (LightDMGreeter *greeter)
 	}
 	else
 	{
-		ui_set_prompt_text (_("Authenticated Failed"), 1);
+		ui_set_prompt_text (_("Authenticated Failed, Try Again"), 1);
+        has_prompted = TRUE;
 		backend_authenticate_process (lightdm_greeter_get_authentication_user (back.greeter));
 	}
 }
 
 void backend_authenticate_username_only (const gchar *username)
 {
+    char * data;
+    gsize length;
 	lightdm_greeter_authenticate (back.greeter, username); 
-	/* add user to ~/.cache/ni/state lastuser */
+
+    g_key_file_set_value (back.statekeyfile, "greeter", "last-user", username);
+    data = g_key_file_to_data (back.statekeyfile, &length, NULL);
+    g_warning ("Put username to state file: %s\n", username);
+    g_file_set_contents (back.statefile, data, length, NULL);
 }
 
 void backend_authenticate_process (const gchar *text)
@@ -129,11 +200,7 @@ static void backend_open_state ()
         return ;
     }
     back.statefile = g_build_filename (state_dir, "state", NULL);
-	if (!(back.statekeyfile = open_key_file (back.statefile)))
-    {
-        g_free(back.statefile);
-        back.statefile = NULL; 
-    }
+	back.statekeyfile = open_key_file (back.statefile);
     g_free (state_dir);
 }
 
@@ -146,16 +213,11 @@ GKeyFile * open_key_file (const char *filepath)
 	keyfile = g_key_file_new ();
 	if (!g_key_file_load_from_file (keyfile, filepath, G_KEY_FILE_NONE, &error))
 	{
-		g_warning ("Failed to Loading conf file \"%s\" : %s", filepath, error->message);
+		g_warning ("Failed to Loading file \"%s\" : %s", filepath, error->message);
 		g_clear_error (&error);
-		g_key_file_free (keyfile);
-		keyfile = NULL;
 	}
     return keyfile;
 }
-
-
-
 
 void backend_set_config (GtkSettings * settings)
 {
@@ -165,7 +227,6 @@ void backend_set_config (GtkSettings * settings)
         return ;
     
     g_debug ("Set Configuration");
-    g_warning ("Set Configuration");
     if ((value = g_key_file_get_value (back.conffile, "greeter", "theme-name", NULL)))
     {
         g_object_set (settings, "gtk-theme-name", value, NULL);
@@ -203,6 +264,12 @@ void backend_set_config (GtkSettings * settings)
     }
 }
 
+void backend_finalize ()
+{
+    g_key_file_free (back.conffile);
+    g_key_file_free (back.statekeyfile);
+    g_free (back.statefile);
+}
 
 void backend_get_conf_background (GdkPixbuf ** bg_pixbuf, GdkRGBA *bg_color)
 {
@@ -210,14 +277,14 @@ void backend_get_conf_background (GdkPixbuf ** bg_pixbuf, GdkRGBA *bg_color)
 	gchar *value;
 
     value = g_key_file_get_value (back.conffile, "greeter", "background", NULL);
-backend_reset_bg:
+BACKEND_RESET_BG:
 	if (!value)
 	{
 		value = g_strdup ("#1F6492");
 	}
 	if (gdk_rgba_parse (bg_color, value))
 	{
-		g_warning ("Backgroud color %s\n", value);
+		g_debug ("Backgroud color %s\n", value);
 	    g_free (value);
 	}
 	else
@@ -229,7 +296,7 @@ backend_reset_bg:
         else
             path = g_build_filename (GREETER_DATA_DIR, value, NULL);
 		*bg_pixbuf = gdk_pixbuf_new_from_file (path, &error);
-		g_warning ("Backgroud picture %s\n", path);
+		g_debug ("Backgroud picture %s\n", path);
 		g_free (path);
 		g_free (value);
         value = NULL;
@@ -237,7 +304,7 @@ backend_reset_bg:
 		{
 			g_warning ("Failed to load background: %s -- %s\n", path, error->message);
 			g_clear_error (&error);
-			goto backend_reset_bg;
+			goto BACKEND_RESET_BG;
 		}
 	}
 }

@@ -6,12 +6,14 @@ struct _GtkUserfacePrivate
 	GdkWindow *event_window;
 	gint x, y;
     const GdkPixbuf *facepixbuf;
-	const char * facepath;
-    const char * username;
+    const GdkPixbuf *facepixbuf_scale;
+	const gchar * facepath;
+    const gchar * username;
     gboolean long_name;
-    gint name_x;
+    gint name_x, name_w;
     PangoLayout *namelabel;
 	gboolean hover;
+    guint timeout_id;
 };
 
 
@@ -27,6 +29,7 @@ static void gtk_userface_size_allocate (GtkWidget *widget, GtkAllocation *alloca
 static gboolean gtk_userface_draw (GtkWidget *widget, cairo_t *ctx);
 static gboolean gtk_userface_enter_notify (GtkWidget *widget, GdkEventCrossing *event);
 static gboolean gtk_userface_leave_notify (GtkWidget *widget, GdkEventCrossing *event);
+static gboolean username_slide_cb (GtkUserface * userface);
 
 G_DEFINE_TYPE (GtkUserface, gtk_userface, GTK_TYPE_WIDGET);
 
@@ -35,10 +38,8 @@ static void gtk_userface_class_init (GtkUserfaceClass *klass)
 	g_type_class_add_private (klass, sizeof (GtkUserfacePrivate));
 	GtkWidgetClass *widget_class = GTK_WIDGET_CLASS (klass);
 	widget_class->draw = gtk_userface_draw;
-    /*
 	widget_class->enter_notify_event = gtk_userface_enter_notify;
 	widget_class->leave_notify_event = gtk_userface_leave_notify;
-    */
 	widget_class->realize = gtk_userface_realize;
 	widget_class->unrealize = gtk_userface_unrealize;
 	widget_class->map = gtk_userface_map;
@@ -57,12 +58,15 @@ static void gtk_userface_init (GtkUserface *userface)
 	userface->priv->x = 0;
 	userface->priv->y = 0;
 	userface->priv->name_x = 0;
+	userface->priv->name_w = 0;
 	userface->priv->long_name = FALSE;
+	userface->priv->timeout_id = 0;
 }
 
 static gboolean gtk_userface_draw (GtkWidget *widget, cairo_t *ctx)
 {
 	GtkUserfacePrivate *priv = GTK_USERFACE(widget)->priv;
+    GtkStyleContext * context = gtk_widget_get_style_context (widget);
 
 	cairo_save (ctx);
     if (priv->facepixbuf)
@@ -70,13 +74,12 @@ static gboolean gtk_userface_draw (GtkWidget *widget, cairo_t *ctx)
         cairo_save (ctx);
         cairo_rectangle (ctx, 0, 0, 36, 36);
         cairo_clip (ctx);
-		gdk_cairo_set_source_pixbuf (ctx, gdk_pixbuf_scale_simple (priv->facepixbuf, 36, 36, GDK_INTERP_BILINEAR), 0, 0);
+		gdk_cairo_set_source_pixbuf (ctx, priv->facepixbuf_scale, 0, 0);
 		cairo_paint (ctx);
         cairo_restore (ctx);
 	}
-	cairo_move_to (ctx, priv->name_x, 36);
-	pango_cairo_show_layout (ctx, priv->namelabel);
-
+	//cairo_move_to (ctx, priv->name_x, 36);
+	gtk_render_layout (context, ctx, priv->name_x, 36, priv->namelabel);
 	cairo_restore (ctx);
 
 	return FALSE;
@@ -94,14 +97,24 @@ GtkWidget * gtk_userface_new (const char *face_path, const char *username)
 
 static gboolean gtk_userface_enter_notify (GtkWidget *widget, GdkEventCrossing *event)
 {
-	GTK_USERFACE(widget)->priv->hover = TRUE;
+	GtkUserfacePrivate * priv = GTK_USERFACE(widget)->priv; 
+    priv->hover = TRUE;
+    if (!priv->long_name)
+        return FALSE;
+    priv->timeout_id = g_timeout_add (40, (GSourceFunc)username_slide_cb, GTK_USERFACE(widget));
 	gtk_widget_queue_draw (widget);
 	return FALSE;
 }
 
 static gboolean gtk_userface_leave_notify (GtkWidget *widget, GdkEventCrossing *event)
 {
-	GTK_USERFACE(widget)->priv->hover = FALSE;
+	GtkUserfacePrivate * priv = GTK_USERFACE(widget)->priv;
+    priv->hover = FALSE;
+    if (!priv->long_name)
+        return FALSE;
+    priv->name_x = 0;
+    g_source_remove (priv->timeout_id);
+    priv->timeout_id = 0;
 	gtk_widget_queue_draw (widget);
 	return FALSE;
 }
@@ -113,7 +126,6 @@ static void gtk_userface_realize (GtkWidget *widget)
 	GdkWindow *parent_window;
 	GdkWindowAttr attributes;
 	gint attributes_mask;
-    gint name_w;
 	GtkUserfacePrivate *priv = GTK_USERFACE (widget)->priv;
 
 	gtk_widget_set_realized (widget, TRUE);
@@ -126,6 +138,7 @@ static void gtk_userface_realize (GtkWidget *widget)
             g_debug("Open face image \"%s\"faild !\n", priv->facepath);
             priv->facepath = NULL;
         }
+        priv->facepixbuf_scale = gdk_pixbuf_scale_simple (priv->facepixbuf, 36, 36, GDK_INTERP_BILINEAR); 
 	}
 	attributes.x = allocation.x;
 	attributes.y = allocation.y;
@@ -151,10 +164,10 @@ static void gtk_userface_realize (GtkWidget *widget)
     /* Don't  change below code to other position in this function */
     priv->namelabel = gtk_widget_create_pango_layout (widget, priv->username);
 	pango_layout_set_font_description (priv->namelabel, pango_font_description_from_string ("Sans 10"));
-    pango_layout_get_pixel_size(priv->namelabel, &name_w, NULL);
-    if (name_w < 37)
+    pango_layout_get_pixel_size(priv->namelabel, &priv->name_w, NULL);
+    if (priv->name_w < 37)
     {
-        priv->name_x = (36 - name_w) / 2;
+        priv->name_x = (36 - priv->name_w) / 2;
     }
     else
     {
@@ -194,14 +207,29 @@ static void gtk_userface_size_allocate (GtkWidget *widget, GtkAllocation *alloca
                                 allocation->height);
 }
 
+static gboolean username_slide_cb (GtkUserface * userface)
+{
+    userface->priv->name_x -= 2;
+    if (userface->priv->name_x < -36-userface->priv->name_w) 
+        userface->priv->name_x = 36;
+	gtk_widget_queue_draw (GTK_WIDGET(userface));
+    return TRUE;
+}
+
 const gchar * gtk_userface_get_name (GtkUserface * userface)
 {
     g_return_val_if_fail (GTK_IS_USERFACE(userface), NULL);
-    return GTK_USERFACE(userface)->priv->username;
+    return userface->priv->username;
 }
 
-const GdkPixbuf * gtk_userface_get_facepixbuf(GtkUserface * userface)
+const GdkPixbuf * gtk_userface_get_facepixbuf (GtkUserface * userface)
 {
     g_return_val_if_fail (GTK_IS_USERFACE(userface), NULL);
-    return GTK_USERFACE(userface)->priv->facepixbuf;
+    return userface->priv->facepixbuf;
+}
+
+const gchar * gtk_userface_get_facepath (GtkUserface * userface)
+{
+    g_return_val_if_fail (GTK_IS_USERFACE(userface), NULL);
+    return userface->priv->facepath;
 }
