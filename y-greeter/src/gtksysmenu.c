@@ -206,7 +206,6 @@ static void gtk_sys_menu_unmap (GtkWidget *widget)
 static void gtk_sys_menu_size_allocate (GtkWidget *widget, GtkAllocation *allocation)
 {
     GtkSysMenuPrivate * priv = GTK_SYS_MENU(widget)->priv;
-    guint height;
     GdkRectangle rectangle;
     GdkScreen  * screen;
 
@@ -231,8 +230,8 @@ static void gtk_sys_menu_size_allocate (GtkWidget *widget, GtkAllocation *alloca
             priv->allocation.x = allocation->x;
 
         priv->start = 0;
-        height = priv->amount * SYS_MENU_ITEM_HEIGHT;
-        priv->end = ((height < priv->allocation.height) ? height : priv->allocation.height) / SYS_MENU_ITEM_HEIGHT;
+
+        priv->end = priv->allocation.height / SYS_MENU_ITEM_HEIGHT - 1;
 
         gtk_widget_set_allocation (widget, &priv->allocation);
         gdk_window_move_resize (priv->event_window,
@@ -259,10 +258,15 @@ static gboolean gtk_sys_menu_draw (GtkWidget *widget, cairo_t *ctx)
     cairo_select_font_face (ctx, "Sans", CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_NORMAL);
     cairo_set_font_size (ctx, SYS_MENU_ITEM_FONT_SIZE);
     cairo_set_source_rgb (ctx, 1.0, 1.0, 1.0);
-    for (i = priv->start; i < priv->end; i++)
+    for (i = priv->start; i <= priv->end; i++)
     {
         cairo_move_to (ctx, (*priv->childindex[i]).x, (*priv->childindex[i]).y);
         pango_cairo_show_layout (ctx, (*priv->childindex[i]).layout);
+        /*
+        gtk_render_layout (styctx, ctx, 
+                (*priv->childindex[i]).x, (*priv->childindex[i]).y,
+                (*priv->childindex[i]).layout);
+         */
     }
 
 
@@ -303,7 +307,7 @@ static gboolean gtk_sys_menu_motion_notify_event (GtkWidget *widget, GdkEventMot
 {
     GtkSysMenuPrivate * priv = GTK_SYS_MENU(widget)->priv;
 
-    if ((event->window != priv->event_window) || (event->y > (double)(priv->amount * SYS_MENU_ITEM_HEIGHT)))
+    if ((event->window != priv->event_window) || (event->y > (double)(priv->allocation.height)))
         return FALSE;
     priv->hover = event->y / SYS_MENU_ITEM_HEIGHT + priv->start;
     gtk_widget_queue_draw (widget);
@@ -313,7 +317,7 @@ static gboolean gtk_sys_menu_motion_notify_event (GtkWidget *widget, GdkEventMot
                  SYS_MENU_ITEM_WIDTH, SYS_MENU_ITEM_HEIGHT);
     */
 
-    return FALSE;
+    return TRUE;
 }
 
 static gboolean gtk_sys_menu_release_event (GtkWidget *widget, GdkEventButton *event)
@@ -325,12 +329,12 @@ static gboolean gtk_sys_menu_release_event (GtkWidget *widget, GdkEventButton *e
     priv->selected = event->y / SYS_MENU_ITEM_HEIGHT + priv->start;
     (*priv->childindex[priv->selected]).selected = TRUE;
     selected_item = priv->childindex[priv->selected];
-    g_debug("RELEASE-ITEM: %s\n", (*priv->childindex[priv->selected]).text);
+    g_debug("RELEASE-ITEM: %s\n", selected_item->text);
     if (selected_item->func) 
     {
         selected_item->func (selected_item, selected_item->func_data);
     }
-    return FALSE;
+    return TRUE;
 }
 
 static gboolean gtk_sys_menu_key_press_event (GtkWidget * widget, GdkEventKey * event)
@@ -338,65 +342,71 @@ static gboolean gtk_sys_menu_key_press_event (GtkWidget * widget, GdkEventKey * 
     GtkSysMenuPrivate * priv = GTK_SYS_MENU(widget)->priv;
     switch (event->hardware_keycode)
     {
-        case 111: if (priv->hover > 0)
-                  {
-                      --priv->hover; 
-                      if (priv->hover < priv->start && priv->start > -1)
-                      {
-                          --priv->start;
-                          g_warning (" UP S=%d, E=%d", priv->start, priv->end);
-                          scroll_sys_menu (priv->childindex, priv->start, priv->end, SCROLL_UP);
-                          --priv->end;
-                      }
+        case 111: 
+            if (priv->hover > 0)
+            {
+                --priv->hover; 
+                if (priv->hover < priv->start)
+                {
+                    priv->start = priv->hover;
+                    --priv->end;
+                    scroll_sys_menu (priv->childindex, priv->start, priv->end, SCROLL_DOWN);
+                }
 
-                  }
-                  else if (priv->hover == -1)
-                      priv->hover = priv->end - 1;
-                  break;
+            }
+            else if (priv->hover == -1)
+                priv->hover = priv->end;
 
-        case 116: if (priv->hover < priv->amount - 1)
-                  {
-                      ++priv->hover;
-                      if (priv->hover > priv->end && priv->end < priv->amount - 1)
-                      {
-                          ++priv->end;
-                          scroll_sys_menu (priv->childindex, priv->start, priv->end, SCROLL_DOWN);
-                          ++priv->start;
-                      } 
-                  }
-                  break;
+            break;
+
+        case 116: 
+            if (priv->hover < priv->amount - 1)
+            {
+                ++priv->hover;
+                if (priv->hover > priv->end)
+                {
+                    priv->end = priv->hover;
+                    ++priv->start;
+                    scroll_sys_menu (priv->childindex, priv->start, priv->end, SCROLL_UP);
+                } 
+            }
+            break;
 
         case 36:
-        case 104: priv->selected = priv->hover;
-                  gtk_widget_hide (widget);
-                  (*priv->childindex[priv->selected]).selected = TRUE;
-                  GtkSysMenuItem * selected_item = priv->childindex[priv->selected];
-                  if (selected_item->func) 
-                  {
-                      selected_item->func (selected_item, selected_item->func_data);
-                  }
-                  break;
+        case 104: 
+            priv->selected = priv->hover;
+            gtk_widget_hide (widget);
+            (*priv->childindex[priv->selected]).selected = TRUE;
+            GtkSysMenuItem * selected_item = priv->childindex[priv->selected];
+            if (selected_item->func) 
+            {
+                selected_item->func (selected_item, selected_item->func_data);
+            }
+            break;
+
+        case 9:
+            gtk_widget_hide (widget);
+            break;
     }
 
-    
-
     gtk_widget_queue_draw (widget);
-    return FALSE;
+    return TRUE;
 }
 
 static void scroll_sys_menu (GtkSysMenuItem ** item, gint start, gint end, ScrollOrientation op)
 {
     switch (op)
     {
-        case SCROLL_UP: 
-            while (start < end)
+        case SCROLL_DOWN: 
+            (*item[start]).y = 0;
+            while (++start <= end)
             {
                 (*item[start]).y += SYS_MENU_ITEM_HEIGHT;
-                ++start;
             }
             break;
 
-        case SCROLL_DOWN:
+        case SCROLL_UP:
+            (*item[end]).y = (*item[end - 1]).y;
             while (start < end)
             {
                 (*item[start]).y -= SYS_MENU_ITEM_HEIGHT;
