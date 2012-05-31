@@ -63,7 +63,7 @@ static void start_session ()
     }
     g_warning ("lang = %s, session = %s", language, session);
 
-    if (!lightdm_greeter_start_session_sync (back.greeter, NULL, &error))
+    if (!lightdm_greeter_start_session_sync (back.greeter, session, &error))
     {
         g_warning ("Starting session: %s\n", error->message);
         g_clear_error (&error);
