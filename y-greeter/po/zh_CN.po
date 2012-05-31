@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: y-greeter\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2012-05-31 11:04+0800\n"
+"POT-Creation-Date: 2012-05-31 15:17+0800\n"
 "PO-Revision-Date: 2012-05-21 11:37+0800\n"
 "Last-Translator: root <root@localhost.localdomain>\n"
 "Language-Team: Chinese (simplified)\n"
@@ -18,8 +18,8 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 
 #: ../src/backend.c:141
-msgid "Authenticated Failed, Try Again"
-msgstr "验证失败,请重试"
+msgid "Authenticated Failed, Try again !"
+msgstr "验证失败,请重试 !"
 
 #: ../src/backend.c:169 ../src/ui.c:681
 msgid "Login"

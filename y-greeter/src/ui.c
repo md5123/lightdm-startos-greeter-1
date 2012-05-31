@@ -333,7 +333,7 @@ static GtkFixed * make_users_table (GList *userlist)
     {
         user = userlist->data;
         gtk_fixed_put (fixed, GTK_WIDGET(user), 
-                (i % 2 + 1) * USER_FACE_SPACING + (i % 2) * USER_FACE_WIDTH, 
+                (i % 2) * (USER_FACE_WIDTH + USER_FACE_SPACING), 
                 (i / 2 + 1) * USER_FACE_SPACING + (i / 2) * USER_FACE_HEIGHT + 30); 
     }
     return fixed;

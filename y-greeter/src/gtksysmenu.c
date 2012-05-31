@@ -232,7 +232,6 @@ static void gtk_sys_menu_size_allocate (GtkWidget *widget, GtkAllocation *alloca
                                 priv->allocation.y + 7, 
                                 priv->allocation.width, 
                                 priv->allocation.height - 15);
-
     }
     else
     {

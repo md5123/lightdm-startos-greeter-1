@@ -78,6 +78,10 @@ static gboolean gtk_userface_draw (GtkWidget *widget, cairo_t *ctx)
         cairo_clip (ctx);
 		gdk_cairo_set_source_pixbuf (ctx, priv->facepixbuf_scale, 0, 0);
 		cairo_paint (ctx);
+        cairo_rectangle (ctx, 0, 0, FACE_SIZE, FACE_SIZE);
+        cairo_set_line_width (ctx, 2.0);
+        cairo_set_source_rgb (ctx, 1.0, 1.0, 1.0);
+        cairo_stroke (ctx);
         cairo_restore (ctx);
 	}
 	gtk_render_layout (context, ctx, priv->name_x, FACE_SIZE, priv->namelabel);

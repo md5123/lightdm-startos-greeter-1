@@ -107,7 +107,8 @@ static void gtk_prompt_size_allocate (GtkWidget * widget, GtkAllocation * alloca
 GtkWidget * gtk_prompt_new(const gchar *text)
 {
     GtkPrompt *prompt = (GtkPrompt *)g_object_new (GTK_TYPE_PROMPT, NULL);
-    gtk_label_set_text (&prompt->label, text);
+    gtk_misc_set_alignment (GTK_MISC(prompt), 0.06, 0.57);
+    gtk_label_set_text (GTK_LABEL(prompt), text);
 
     return  GTK_WIDGET(prompt);
 }
@@ -115,5 +116,5 @@ GtkWidget * gtk_prompt_new(const gchar *text)
 void gtk_prompt_set_text (GtkPrompt * prompt, const gchar *text)
 {
     g_return_if_fail (GTK_IS_PROMPT(prompt));
-    gtk_label_set_text (&prompt->label, text);
+    gtk_label_set_text (GTK_LABEL(prompt), text);
 }

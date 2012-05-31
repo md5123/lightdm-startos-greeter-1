@@ -276,19 +276,19 @@ gtk_login_box_size_allocate (GtkWidget *widget, GtkAllocation * allocation)
     box->priv->username_y = 7;
 
     child_allocation.x = allocation->x + 2 + 205 + 40;
-    child_allocation.y = allocation->y + 2 + 100 + 2 + 1;
+    child_allocation.y = allocation->y + 2 + 80 + 2 + 1;
     child_allocation.width = 300;
     child_allocation.height = 50;
     gtk_widget_size_allocate (GTK_WIDGET(box->priv->input), &child_allocation);
 
     child_allocation.x = allocation->x + 2 + 205 + 42;
-    child_allocation.y = allocation->y + 2 + 100 + 4 + 50 + 4;
+    child_allocation.y = allocation->y + 2 + 80 + 4 + 50 + 4;
     child_allocation.width = 294;
     child_allocation.height = 40;
     gtk_widget_size_allocate (GTK_WIDGET(box->priv->prompt), &child_allocation);
 
     child_allocation.x = allocation->x + 2 + 205 + 40 + 300 + 14;
-    child_allocation.y = allocation->y + 2 + 100 + 4;
+    child_allocation.y = allocation->y + 2 + 80 + 4;
     child_allocation.width = 80;
     child_allocation.height = 50;
     gtk_widget_size_allocate (GTK_WIDGET(box->priv->loginbutton), &child_allocation);
