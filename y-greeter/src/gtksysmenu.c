@@ -224,8 +224,7 @@ static void gtk_sys_menu_size_allocate (GtkWidget *widget, GtkAllocation *alloca
         else
             priv->allocation.x = allocation->x;
 
-        priv->start = 0;
-        priv->end = (priv->allocation.height - 15) / SYS_MENU_ITEM_HEIGHT - 1;
+        priv->end = priv->start + (priv->allocation.height - 15) / SYS_MENU_ITEM_HEIGHT - 1;
 
         gtk_widget_set_allocation (widget, &priv->allocation);
         gdk_window_move_resize (priv->event_window,
