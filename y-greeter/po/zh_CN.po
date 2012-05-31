@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: y-greeter\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2012-05-25 11:14+0800\n"
+"POT-Creation-Date: 2012-05-31 11:04+0800\n"
 "PO-Revision-Date: 2012-05-21 11:37+0800\n"
 "Last-Translator: root <root@localhost.localdomain>\n"
 "Language-Team: Chinese (simplified)\n"
@@ -17,58 +17,234 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: ../src/backend.c:132
+#: ../src/backend.c:141
 msgid "Authenticated Failed, Try Again"
 msgstr "验证失败,请重试"
 
-#: ../src/gtkclock.c:43
-msgid "Sunday"
-msgstr "星期日"
-
-#: ../src/gtkclock.c:44
-msgid "Monday"
-msgstr "星期一"
-
-#: ../src/gtkclock.c:45
-msgid "Tuesday"
-msgstr "星期二"
-
-#: ../src/gtkclock.c:46
-msgid "Wednesday"
-msgstr "星期三"
-
-#: ../src/gtkclock.c:47
-msgid "Thursday"
-msgstr "星期四"
-
-#: ../src/gtkclock.c:48
-msgid "Friday"
-msgstr "星期五 "
-
-#: ../src/gtkclock.c:49
-msgid "Saturday"
-msgstr "星期六"
-
-#: ../src/gtkloginbox.c:110
+#: ../src/backend.c:169 ../src/ui.c:681
 msgid "Login"
 msgstr "登录"
 
-#: ../src/gtkloginbox.c:120
+#: ../src/gtkclock.c:48
+msgid "Sunday"
+msgstr "星期日"
+
+#: ../src/gtkclock.c:49
+msgid "Monday"
+msgstr "星期一"
+
+#: ../src/gtkclock.c:50
+msgid "Tuesday"
+msgstr "星期二"
+
+#: ../src/gtkclock.c:51
+msgid "Wednesday"
+msgstr "星期三"
+
+#: ../src/gtkclock.c:52
+msgid "Thursday"
+msgstr "星期四"
+
+#: ../src/gtkclock.c:53
+msgid "Friday"
+msgstr "星期五 "
+
+#: ../src/gtkclock.c:54
+msgid "Saturday"
+msgstr "星期六"
+
+#: ../src/gtkclock.c:56
+msgid "Jan"
+msgstr "1月"
+
+#: ../src/gtkclock.c:57
+msgid "Feb"
+msgstr "2月"
+
+#: ../src/gtkclock.c:58
+msgid "Mar"
+msgstr "3月"
+
+#: ../src/gtkclock.c:59
+msgid "Apr"
+msgstr "4月"
+
+#: ../src/gtkclock.c:60
+msgid "May"
+msgstr "5月"
+
+#: ../src/gtkclock.c:61
+msgid "Jun"
+msgstr "6月"
+
+#: ../src/gtkclock.c:62
+msgid "Jul"
+msgstr "7月"
+
+#: ../src/gtkclock.c:63
+msgid "Aug"
+msgstr "8月"
+
+#: ../src/gtkclock.c:64
+msgid "Sep"
+msgstr "9月"
+
+#: ../src/gtkclock.c:65
+msgid "Oct"
+msgstr "10月"
+
+#: ../src/gtkclock.c:66
+msgid "Nov"
+msgstr "11月"
+
+#: ../src/gtkclock.c:67
+msgid "Dec"
+msgstr "12月"
+
+#: ../src/gtkclock.c:69
+msgid "1"
+msgstr "1日"
+
+#: ../src/gtkclock.c:70
+msgid "2"
+msgstr "2日"
+
+#: ../src/gtkclock.c:71
+msgid "3"
+msgstr "3日"
+
+#: ../src/gtkclock.c:72
+msgid "4"
+msgstr "4日"
+
+#: ../src/gtkclock.c:73
+msgid "5"
+msgstr "5日"
+
+#: ../src/gtkclock.c:74
+msgid "6"
+msgstr "6日"
+
+#: ../src/gtkclock.c:75
+msgid "7"
+msgstr "7日"
+
+#: ../src/gtkclock.c:76
+msgid "8"
+msgstr "8日"
+
+#: ../src/gtkclock.c:77
+msgid "9"
+msgstr "9日"
+
+#: ../src/gtkclock.c:78
+msgid "10"
+msgstr "10日"
+
+#: ../src/gtkclock.c:79
+msgid "11"
+msgstr "11日"
+
+#: ../src/gtkclock.c:80
+msgid "12"
+msgstr "12日"
+
+#: ../src/gtkclock.c:81
+msgid "13"
+msgstr "13日"
+
+#: ../src/gtkclock.c:82
+msgid "14"
+msgstr "14日"
+
+#: ../src/gtkclock.c:83
+msgid "15"
+msgstr "15日"
+
+#: ../src/gtkclock.c:84
+msgid "16"
+msgstr "16日"
+
+#: ../src/gtkclock.c:85
+msgid "17"
+msgstr "17日"
+
+#: ../src/gtkclock.c:86
+msgid "18"
+msgstr "18日"
+
+#: ../src/gtkclock.c:87
+msgid "19"
+msgstr "19日"
+
+#: ../src/gtkclock.c:88
+msgid "20"
+msgstr "20日"
+
+#: ../src/gtkclock.c:89
+msgid "21"
+msgstr "21日"
+
+#: ../src/gtkclock.c:90
+msgid "22"
+msgstr "22日"
+
+#: ../src/gtkclock.c:91
+msgid "23"
+msgstr "23日"
+
+#: ../src/gtkclock.c:92
+msgid "24"
+msgstr "24日"
+
+#: ../src/gtkclock.c:93
+msgid "25"
+msgstr "25日"
+
+#: ../src/gtkclock.c:94
+msgid "26"
+msgstr "26日"
+
+#: ../src/gtkclock.c:95
+msgid "27"
+msgstr "27日"
+
+#: ../src/gtkclock.c:96
+msgid "28"
+msgstr "28日"
+
+#: ../src/gtkclock.c:97
+msgid "29"
+msgstr "29日"
+
+#: ../src/gtkclock.c:98
+msgid "30"
+msgstr "30日"
+
+#: ../src/gtkclock.c:99
+msgid "31"
+msgstr "31日"
+
+#: ../src/gtkloginbox.c:153
 msgid "User Name"
 msgstr "用户名"
 
-#: ../src/ui.c:424
+#: ../src/ui.c:328
+msgid "Other Users"
+msgstr "更多用户"
+
+#: ../src/ui.c:468
 msgid "shutdown"
 msgstr "关机"
 
-#: ../src/ui.c:429
+#: ../src/ui.c:473
 msgid "restart"
 msgstr "重启"
 
-#: ../src/ui.c:434
+#: ../src/ui.c:478
 msgid "suspend"
 msgstr "挂起"
 
-#: ../src/ui.c:439
+#: ../src/ui.c:483
 msgid "hibernate"
 msgstr "休眠"

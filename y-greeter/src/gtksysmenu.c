@@ -2,25 +2,24 @@
 #include <gtk/gtk.h>
 #include "gtksysmenu.h"
 
-#define SYS_MENU_ITEM_FONT_SIZE 20
 #define SYS_MENU_ITEM_WIDTH     80
-#define SYS_MENU_ITEM_HEIGHT    20
+#define SYS_MENU_ITEM_HEIGHT    30
 
-#if !defined(SYS_BUTTON_HEIGHT)
-#define SYS_BUTTON_HEIGHT    60
+#if !defined(SYS_MENU_BOTTOM_Y)
+#define SYS_MENU_BOTTOM_Y    67
 #endif
-
-typedef enum 
-{
-    USER_SELECTED,
-    LAST_SIGNAL
-}ScrollOrientation;
 
 enum 
 {
+    USER_SELECTED,
+    LAST_SIGNAL
+};
+
+typedef enum 
+{
     SCROLL_DOWN,
     SCROLL_UP
-};
+} ScrollOrientation;
 
 struct _GtkSysMenuPrivate
 {
@@ -52,19 +51,13 @@ static gboolean gtk_sys_menu_motion_notify_event (GtkWidget *widget, GdkEventMot
 static gboolean gtk_sys_menu_release_event (GtkWidget *widget, GdkEventButton *event);
 static gboolean gtk_sys_menu_key_press_event (GtkWidget * widget, GdkEventKey * event);
 
-static gboolean gtk_sys_menu_focus_in (GtkWidget * widget, GdkEventFocus * event);
 static gboolean gtk_sys_menu_focus_out (GtkWidget * widget, GdkEventFocus * event);
 static void scroll_sys_menu (GtkSysMenuItem ** item, gint start, gint end, ScrollOrientation op);
 
-static gboolean gtk_sys_menu_focus_in (GtkWidget * widget, GdkEventFocus * event)
-{
-    g_warning ("%-3d | fuck here %s:%s - %s\n", __LINE__, __FILE__, __func__, "focus in");
-    return FALSE;
-}
 
 static gboolean gtk_sys_menu_focus_out (GtkWidget * widget, GdkEventFocus * event)
 {
-    g_warning ("%-3d | fuck here %s:%s - %s\n", __LINE__, __FILE__, __func__, "focus out");
+    gtk_widget_hide (widget);
     return FALSE;
 }
 
@@ -82,8 +75,6 @@ static void gtk_sys_menu_class_init (GtkSysMenuClass *klass)
 	widget_class->size_allocate = gtk_sys_menu_size_allocate;
 	widget_class->button_release_event = gtk_sys_menu_release_event;
 	widget_class->key_press_event = gtk_sys_menu_key_press_event;
-
-	widget_class->focus_in_event = gtk_sys_menu_focus_in;
 	widget_class->focus_out_event = gtk_sys_menu_focus_out;
 
     /*
@@ -165,12 +156,13 @@ static void gtk_sys_menu_realize (GtkWidget *widget)
     {
         priv->childindex[i] = (GtkSysMenuItem *)(item->data);
         (*priv->childindex[i]).y = i * SYS_MENU_ITEM_HEIGHT; 
-        (*priv->childindex[i]).x = 2; 
+        (*priv->childindex[i]).x = 15; 
         (*priv->childindex[i]).layout = gtk_widget_create_pango_layout (widget, (*priv->childindex[i]).text);
         pango_layout_get_pixel_size ((*priv->childindex[i]).layout, &w, NULL);
         priv->allocation.width = MAX (priv->allocation.width, w);
         priv->selected = (*priv->childindex[i]).selected ? i : priv->selected;
     }
+    priv->allocation.width += 30;
 }
 
 static void gtk_sys_menu_unrealize (GtkWidget *widget)
@@ -200,8 +192,7 @@ static void gtk_sys_menu_unmap (GtkWidget *widget)
 }
 
 /* 
- * if user not SIZE-REQUEST or unreasonable,  the sysmenu have to adjust it 
- * ::: x, y, width, height 
+ * sysmenu have to adjusts: x, y, width, height 
  */
 static void gtk_sys_menu_size_allocate (GtkWidget *widget, GtkAllocation *allocation)
 {
@@ -215,30 +206,33 @@ static void gtk_sys_menu_size_allocate (GtkWidget *widget, GtkAllocation *alloca
         gdk_screen_get_monitor_geometry (screen, gdk_screen_get_primary_monitor (screen), &rectangle);
         priv->monitor_height = rectangle.height;
         priv->monitor_width  = rectangle.width;
-        priv->allocation.width  = MAX (allocation->width, priv->allocation.width); 
-        priv->allocation.height = MAX (allocation->height, priv->amount * SYS_MENU_ITEM_HEIGHT);
+        priv->allocation.height = MAX (allocation->height, priv->amount * SYS_MENU_ITEM_HEIGHT + 15);
         
         if (priv->allocation.height > priv->monitor_height)
         {
-            priv->allocation.height = priv->monitor_height - SYS_BUTTON_HEIGHT;
+            priv->allocation.height = priv->monitor_height - SYS_MENU_BOTTOM_Y;
             priv->exceed = TRUE;
         }
-        priv->allocation.y = priv->monitor_height - priv->allocation.height - SYS_BUTTON_HEIGHT;
+        priv->allocation.y = priv->monitor_height - priv->allocation.height - SYS_MENU_BOTTOM_Y;
+        if (priv->exceed)
+        {
+            priv->allocation.y += 5;
+            priv->allocation.height -= 5;
+        }
         if (allocation->x + priv->allocation.width > priv->monitor_width && allocation->x < priv->allocation.width)
             priv->allocation.x = allocation->x - priv->allocation.width;
         else
             priv->allocation.x = allocation->x;
 
         priv->start = 0;
-
-        priv->end = priv->allocation.height / SYS_MENU_ITEM_HEIGHT - 1;
+        priv->end = (priv->allocation.height - 15) / SYS_MENU_ITEM_HEIGHT - 1;
 
         gtk_widget_set_allocation (widget, &priv->allocation);
         gdk_window_move_resize (priv->event_window,
                                 priv->allocation.x, 
-                                priv->allocation.y, 
+                                priv->allocation.y + 7, 
                                 priv->allocation.width, 
-                                priv->allocation.height);
+                                priv->allocation.height - 15);
 
     }
     else
@@ -252,15 +246,17 @@ static gboolean gtk_sys_menu_draw (GtkWidget *widget, cairo_t *ctx)
     gint i;
     cairo_save (ctx);
     GtkSysMenuPrivate * priv = GTK_SYS_MENU(widget)->priv;
-    cairo_set_source_rgba (ctx, 0.0, 0.0, 0.0, 0.4);
+    cairo_set_source_rgba (ctx, 0.0, 0.0, 0.0, 0.5);
     cairo_paint (ctx);
 
-    cairo_select_font_face (ctx, "Sans", CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_NORMAL);
-    cairo_set_font_size (ctx, SYS_MENU_ITEM_FONT_SIZE);
+    cairo_rectangle (ctx, 0, 7, priv->allocation.width, priv->allocation.height - 15);
+    cairo_clip (ctx);
+    cairo_translate (ctx, 0, 7);
     cairo_set_source_rgb (ctx, 1.0, 1.0, 1.0);
     for (i = priv->start; i <= priv->end; i++)
     {
-        cairo_move_to (ctx, (*priv->childindex[i]).x, (*priv->childindex[i]).y);
+        //cairo_move_to (ctx, (*priv->childindex[i]).x, (*priv->childindex[i]).y + 7);
+        cairo_move_to (ctx, 15, (*priv->childindex[i]).y + 7);
         pango_cairo_show_layout (ctx, (*priv->childindex[i]).layout);
         /*
         gtk_render_layout (styctx, ctx, 
@@ -275,11 +271,12 @@ static gboolean gtk_sys_menu_draw (GtkWidget *widget, cairo_t *ctx)
         cairo_save (ctx);
         cairo_rectangle (ctx, 0, (*priv->childindex[priv->selected]).y, priv->allocation.width, SYS_MENU_ITEM_HEIGHT);
         cairo_clip (ctx);
-        cairo_set_source_rgba (ctx, 0.0, 0.0, 0.0, 0.9);
+        cairo_set_source_rgb (ctx, 6 / 255.0, 129 / 255.0, 119 / 255.0);
         cairo_paint (ctx);
         cairo_restore (ctx);
 
-        cairo_move_to (ctx, (*priv->childindex[priv->selected]).x, (*priv->childindex[priv->selected]).y);
+        //cairo_move_to (ctx, (*priv->childindex[priv->selected]).x, (*priv->childindex[priv->selected]).y + 7);
+        cairo_move_to (ctx, 15, (*priv->childindex[priv->selected]).y + 7);
         cairo_set_source_rgb (ctx, 1.0, 1.0, 1.0);
         pango_cairo_show_layout (ctx, (*priv->childindex[priv->selected]).layout);
     }
@@ -289,11 +286,12 @@ static gboolean gtk_sys_menu_draw (GtkWidget *widget, cairo_t *ctx)
         cairo_save (ctx);
         cairo_rectangle (ctx, 0, (*priv->childindex[priv->hover]).y, priv->allocation.width, SYS_MENU_ITEM_HEIGHT);
         cairo_clip (ctx);
-        cairo_set_source_rgba (ctx, 0.0, 0.0, 0.0, 0.4);
+        cairo_set_source_rgba (ctx, 6 / 255.0, 129 / 255.0, 119 / 255.0, 0.6);
         cairo_paint (ctx);
         cairo_restore (ctx);
 
-        cairo_move_to (ctx, (*priv->childindex[priv->hover]).x, (*priv->childindex[priv->hover]).y);
+        //cairo_move_to (ctx, (*priv->childindex[priv->hover]).x, (*priv->childindex[priv->hover]).y + 7);
+        cairo_move_to (ctx, 15, (*priv->childindex[priv->hover]).y + 7);
         cairo_set_source_rgb (ctx, 1.0, 1.0, 1.0);
         pango_cairo_show_layout (ctx, (*priv->childindex[priv->hover]).layout);
     }

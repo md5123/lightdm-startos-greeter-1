@@ -1,6 +1,8 @@
 #include "gtkuserface.h"
 #include <math.h>
 
+#define FACE_SIZE 80
+
 struct _GtkUserfacePrivate
 {
 	GdkWindow *event_window;
@@ -69,17 +71,16 @@ static gboolean gtk_userface_draw (GtkWidget *widget, cairo_t *ctx)
     GtkStyleContext * context = gtk_widget_get_style_context (widget);
 
 	cairo_save (ctx);
-    if (priv->facepixbuf)
+    if (priv->facepixbuf_scale)
 	{
         cairo_save (ctx);
-        cairo_rectangle (ctx, 0, 0, 36, 36);
+        cairo_rectangle (ctx, 0, 0, FACE_SIZE, FACE_SIZE);
         cairo_clip (ctx);
 		gdk_cairo_set_source_pixbuf (ctx, priv->facepixbuf_scale, 0, 0);
 		cairo_paint (ctx);
         cairo_restore (ctx);
 	}
-	//cairo_move_to (ctx, priv->name_x, 36);
-	gtk_render_layout (context, ctx, priv->name_x, 36, priv->namelabel);
+	gtk_render_layout (context, ctx, priv->name_x, FACE_SIZE, priv->namelabel);
 	cairo_restore (ctx);
 
 	return FALSE;
@@ -135,10 +136,10 @@ static void gtk_userface_realize (GtkWidget *widget)
 	{
 		if (!(priv->facepixbuf = gdk_pixbuf_new_from_file(priv->facepath, NULL)))
         {
-            g_debug("Open face image \"%s\"faild !\n", priv->facepath);
+            g_warning ("Open face image \"%s\"faild !\n", priv->facepath);
             priv->facepath = NULL;
         }
-        priv->facepixbuf_scale = gdk_pixbuf_scale_simple (priv->facepixbuf, 36, 36, GDK_INTERP_BILINEAR); 
+        priv->facepixbuf_scale = gdk_pixbuf_scale_simple (priv->facepixbuf, FACE_SIZE, FACE_SIZE, GDK_INTERP_BILINEAR); 
 	}
 	attributes.x = allocation.x;
 	attributes.y = allocation.y;
@@ -165,9 +166,9 @@ static void gtk_userface_realize (GtkWidget *widget)
     priv->namelabel = gtk_widget_create_pango_layout (widget, priv->username);
 	pango_layout_set_font_description (priv->namelabel, pango_font_description_from_string ("Sans 10"));
     pango_layout_get_pixel_size(priv->namelabel, &priv->name_w, NULL);
-    if (priv->name_w < 37)
+    if (priv->name_w <= FACE_SIZE)
     {
-        priv->name_x = (36 - priv->name_w) / 2;
+        priv->name_x = (FACE_SIZE - priv->name_w) / 2;
     }
     else
     {
@@ -192,7 +193,7 @@ static void gtk_userface_map (GtkWidget *widget)
 
 static void gtk_userface_unmap (GtkWidget *widget)
 {
-	gdk_window_hide (GTK_USERFACE(widget)->priv->event_window); /* instead widget receive event */
+	gdk_window_hide (GTK_USERFACE(widget)->priv->event_window); 
 	GTK_WIDGET_CLASS(gtk_userface_parent_class)->unmap (widget);
 }
 
@@ -210,8 +211,8 @@ static void gtk_userface_size_allocate (GtkWidget *widget, GtkAllocation *alloca
 static gboolean username_slide_cb (GtkUserface * userface)
 {
     userface->priv->name_x -= 2;
-    if (userface->priv->name_x < -36-userface->priv->name_w) 
-        userface->priv->name_x = 36;
+    if (userface->priv->name_x < - (FACE_SIZE + userface->priv->name_w)) 
+        userface->priv->name_x = FACE_SIZE;
 	gtk_widget_queue_draw (GTK_WIDGET(userface));
     return TRUE;
 }

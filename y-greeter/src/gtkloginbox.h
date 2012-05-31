@@ -39,4 +39,8 @@ void  gtk_login_box_set_input (GtkLoginBox *box, const char *text);
 void  gtk_login_box_set_prompt (GtkLoginBox *box, const char *text);
 void  gtk_login_box_set_input_visible (GtkLoginBox *box, gboolean setting);
 void  gtk_login_box_set_input_focus (GtkLoginBox *box);
+void  gtk_login_box_set_prompt_show (GtkLoginBox *box, gboolean setting);
+
+
+
 #endif /* __GTK_MYBOX_H__ */

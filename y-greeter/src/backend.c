@@ -23,10 +23,19 @@ static cairo_surface_t * backend_create_root_surface (GdkScreen *screen);
 
 static void show_prompt_cb (LightDMGreeter *greeter, const gchar *prompt, LightDMPromptType type)
 {
+
+    /* 
+     * FIXME: It must to do so & here, or login box can't 
+     *        re-SENSITIVE. Any suggestion ?
+     */
+    ui_set_login_box_sensitive (TRUE);
+
+    /*
     if (!has_prompted)
     {
         ui_set_prompt_text (dgettext("Linux-PAM", prompt), type);
     }
+    */
 }
 
 static void show_message_cb (LightDMGreeter *greeter, const gchar *message, LightDMMessageType type)
@@ -121,7 +130,7 @@ gchar * backend_state_file_get_user (void)
 
 static void authentication_complete_cb (LightDMGreeter *greeter)
 {
-	ui_set_prompt_text ("", 0);
+	//ui_set_prompt_text (NULL, 0);
 
 	if (lightdm_greeter_get_is_authenticated (back.greeter))
 	{
@@ -130,6 +139,7 @@ static void authentication_complete_cb (LightDMGreeter *greeter)
 	else
 	{
 		ui_set_prompt_text (_("Authenticated Failed, Try Again"), 1);
+        ui_set_prompt_show (TRUE);
         has_prompted = TRUE;
 		backend_authenticate_process (lightdm_greeter_get_authentication_user (back.greeter));
 	}
@@ -139,11 +149,34 @@ void backend_authenticate_username_only (const gchar *username)
 {
     char * data;
     gsize length;
-	lightdm_greeter_authenticate (back.greeter, username); 
+    gboolean truename;
+    
+    lightdm_greeter_authenticate (back.greeter, username);
+
+    truename = username && *username;
+
+    if (truename)
+    {
+        if (!has_prompted)
+        {
+            ui_set_prompt_text (NULL, 1); /* password */
+            ui_set_prompt_show (FALSE);
+        }
+    }
+    else
+    {
+        has_prompted = FALSE;
+        ui_set_prompt_text (_("Login"), 0);
+        ui_set_prompt_show (TRUE);
+    }
+    
+
+    if (!truename)
+        return ;
 
     g_key_file_set_value (back.statekeyfile, "greeter", "last-user", username);
     data = g_key_file_to_data (back.statekeyfile, &length, NULL);
-    g_warning ("Put username to state file: %s\n", username);
+    g_debug ("Put username to state file: %s\n", username);
     g_file_set_contents (back.statefile, data, length, NULL);
 }
 
@@ -155,6 +188,10 @@ void backend_authenticate_process (const gchar *text)
 	}
 	else if (lightdm_greeter_get_in_authentication (back.greeter))
 	{
+        //has_prompted = TRUE;
+        ui_set_prompt_show (FALSE);
+        ui_set_prompt_text ("", 1); /* entry invisible */
+
 		lightdm_greeter_respond (back.greeter, text); /* password */
 	}
 	else
