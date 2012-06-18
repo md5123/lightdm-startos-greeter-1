@@ -20,7 +20,12 @@ configdir = $(sysconfdir)/lightdm
 dist_config_DATA = y-greeter.conf
 
 xgreetersdir = $(datadir)/xgreeters
+
+y-greeter.desktop: y-greeter.desktop.in
+	sed -e 's,[@]BINDIR[@],$(sbindir),g' y-greeter.desktop.in > y-greeter.desktop
+
 dist_xgreeters_DATA = y-greeter.desktop
 
 DISTCLEANFILES = \
-	Makefile.in
+	Makefile.in \
+	y-greeter.desktop

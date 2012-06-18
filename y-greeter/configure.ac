@@ -20,6 +20,7 @@ PKG_CHECK_MODULES(GREETER, [
     liblightdm-gobject-1
 ])
 
+AC_PROG_SED
 IT_PROG_INTLTOOL
 AC_SUBST(GETTEXT_PACKAGE, y-greeter)
 
