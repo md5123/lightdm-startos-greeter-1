@@ -23,7 +23,7 @@ struct _GtkSysMenuItem
     const char  *text;
     const char  *code;
     PangoLayout *layout;
-    void (* func) (GtkSysMenuItem *item, gpointer f_data); /* protype: void func (args ...); */
+    void (* func) (GtkSysMenuItem *item, gpointer f_data); 
     gpointer func_data;
 	gint x, y;
     gboolean  selected;
@@ -40,8 +40,6 @@ struct _GtkSysMenuClass
 {
 	GtkWidgetClass   parent_class;
 };
-
-
 
 
 GType gtk_sys_menu_get_type (void);

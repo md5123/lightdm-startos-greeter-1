@@ -50,6 +50,7 @@ static gboolean gtk_sys_menu_leave_notify (GtkWidget *widget, GdkEventCrossing *
 static gboolean gtk_sys_menu_motion_notify_event (GtkWidget *widget, GdkEventMotion *event);
 static gboolean gtk_sys_menu_release_event (GtkWidget *widget, GdkEventButton *event);
 static gboolean gtk_sys_menu_key_press_event (GtkWidget * widget, GdkEventKey * event);
+static gboolean gtk_sys_menu_scroll_event (GtkWidget * widget, GdkEventScroll * event);
 
 static gboolean gtk_sys_menu_focus_out (GtkWidget * widget, GdkEventFocus * event);
 static void scroll_sys_menu (GtkSysMenuItem ** item, gint start, gint end, ScrollOrientation op);
@@ -76,6 +77,7 @@ static void gtk_sys_menu_class_init (GtkSysMenuClass *klass)
 	widget_class->button_release_event = gtk_sys_menu_release_event;
 	widget_class->key_press_event = gtk_sys_menu_key_press_event;
 	widget_class->focus_out_event = gtk_sys_menu_focus_out;
+	widget_class->scroll_event = gtk_sys_menu_scroll_event;
 
     /*
     g_signal_new ("user-selected", GTK_TYPE_SYS_MENU,
@@ -279,7 +281,7 @@ static gboolean gtk_sys_menu_draw (GtkWidget *widget, cairo_t *ctx)
         pango_cairo_show_layout (ctx, (*priv->childindex[priv->selected]).layout);
     }
 
-    if (priv->hover != -1)
+    if (priv->hover <= priv->end && priv->hover >= priv->start)
     {
         cairo_save (ctx);
         cairo_rectangle (ctx, 0, (*priv->childindex[priv->hover]).y, priv->allocation.width, SYS_MENU_ITEM_HEIGHT);
@@ -330,6 +332,38 @@ static gboolean gtk_sys_menu_release_event (GtkWidget *widget, GdkEventButton *e
     {
         selected_item->func (selected_item, selected_item->func_data);
     }
+    return TRUE;
+}
+
+static gboolean gtk_sys_menu_scroll_event (GtkWidget * widget, GdkEventScroll * event)
+{
+    GtkSysMenuPrivate * priv = GTK_SYS_MENU(widget)->priv;
+    switch (event->direction)
+    {
+        case GDK_SCROLL_UP: 
+            if (priv->start > 0)
+            {
+                --priv->start;
+                --priv->end;
+                scroll_sys_menu (priv->childindex, priv->start, priv->end, SCROLL_DOWN);
+            }
+            break;
+
+        case GDK_SCROLL_DOWN: 
+            if (priv->end < priv->amount - 1)
+            {
+                ++priv->end;
+                ++priv->start;
+                scroll_sys_menu (priv->childindex, priv->start, priv->end, SCROLL_UP);
+            }
+            break;
+        case GDK_SCROLL_LEFT:  /* For restraint warnings */
+        case GDK_SCROLL_RIGHT: 
+        default:
+            break;
+    }
+
+    gtk_widget_queue_draw (widget);
     return TRUE;
 }
 

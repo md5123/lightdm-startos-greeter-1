@@ -14,10 +14,10 @@
 #define LDM_HIBERNATE "hibernate"
 
 #define LOGIN_BOX_WIDTH     643
-#define LOGIN_BOX_HEIGHT    207
-#define USER_FACE_SPACING   14
-#define USER_FACE_WIDTH     80
-#define USER_FACE_HEIGHT    104
+#define LOGIN_BOX_HEIGHT    154
+#define USER_FACE_SPACING   10
+#define USER_FACE_WIDTH     64
+#define USER_FACE_HEIGHT    88
 #define SYS_BUTTON_WIDTH    32
 #define SYS_BUTTON_HEIGHT   32
 
@@ -186,7 +186,7 @@ static void login_box_update_face_cb (GtkLoginBox *box, const gchar *username, g
 static void login_box_reborn_cb (GtkLoginBox *box, gpointer data)
 {
 	gtk_login_box_set_input (box, "");
-    gtk_login_box_update_face_name (box, NULL, "YLMF OS");
+    gtk_login_box_update_face_name (box, NULL, _("User Name"));
     gtk_login_box_set_input_visible (box, TRUE);
     backend_authenticate_username_only (NULL);
 }

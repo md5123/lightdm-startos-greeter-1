@@ -1,7 +1,7 @@
 #include "gtkuserface.h"
 #include <math.h>
 
-#define FACE_SIZE 80
+#define FACE_SIZE 64
 
 struct _GtkUserfacePrivate
 {

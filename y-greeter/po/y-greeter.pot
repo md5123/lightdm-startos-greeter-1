@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: y-greeter 0.00\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2012-05-31 15:17+0800\n"
+"POT-Creation-Date: 2012-06-18 09:47+0800\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -18,7 +18,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 
 #: ../src/backend.c:141
-msgid "Authenticated Failed, Try again !"
+msgid "Authenticated Failed, Try Again"
 msgstr ""
 
 #: ../src/backend.c:169 ../src/ui.c:681
@@ -225,7 +225,7 @@ msgstr ""
 msgid "31"
 msgstr ""
 
-#: ../src/gtkloginbox.c:153
+#: ../src/gtkloginbox.c:167 ../src/gtkloginbox.c:364 ../src/ui.c:189
 msgid "User Name"
 msgstr ""
 

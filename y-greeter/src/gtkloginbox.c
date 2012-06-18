@@ -1,6 +1,6 @@
 /*
  * License: GPLv3
- * Copyright: Ylmf 
+ * Copyright: vali 
  * Author: chen-qx@live.cn
  * Date: 2012-05
  * Description: A developing LightDM greeter for YLMF OS 5
@@ -14,6 +14,20 @@
 #include <glib/gi18n.h>
 #include "gtkloginbox.h"
 #include "gtkprompt.h"
+
+
+#define UFACE_W  150
+#define UFACE_H  UFACE_W
+#define UNAME_W  250
+#define UNAME_H  40
+#define SPACING  2
+#define PROMPT_W 244
+#define PROMPT_H 40
+#define INPUT_W  250
+#define INPUT_H  50
+#define BT_W     80
+#define BT_H     45
+
 
 enum 
 {
@@ -39,8 +53,8 @@ struct _GtkLoginBoxPrivate
 static void gtk_login_box_class_init (GtkLoginBoxClass *klass);
 static void gtk_login_box_init (GtkLoginBox *box);
 static void gtk_login_box_realize (GtkWidget *widget);
-static gboolean gtk_login_box_draw (GtkWidget *widget, cairo_t * ctx);
 static void gtk_login_box_add (GtkContainer *container, GtkWidget *widget);
+static gboolean gtk_login_box_draw (GtkWidget *widget, cairo_t * ctx);
 static gboolean gtk_login_box_key_press_event (GtkWidget * widget, GdkEventKey * event);
 static void gtk_login_box_size_allocate (GtkWidget *widget, GtkAllocation *allocation);
 static void gtk_login_box_forall (GtkContainer *container, gboolean include_internals, 
@@ -114,10 +128,10 @@ static void gtk_login_box_init (GtkLoginBox *box)
     gtk_widget_set_has_window(GTK_WIDGET(box), FALSE);
 
     widget = gtk_entry_new ();
-    border.left = 16;
-    border.right = 16;
-    border.top = 18;
-    border.bottom = 18;
+    border.left = 12;
+    border.right = 12;
+    border.top = 16;
+    border.bottom = 16;
     gtk_entry_set_inner_border (GTK_ENTRY(widget), &border);
     gtk_widget_set_can_default (widget, TRUE);
     gtk_widget_set_can_focus (widget, TRUE);
@@ -136,7 +150,7 @@ static void gtk_login_box_init (GtkLoginBox *box)
 
     widget = gtk_event_box_new ();
     image = gtk_image_new ();
-    gtk_widget_set_size_request (image, 80, 50);
+    gtk_widget_set_size_request (image, BT_W, BT_H);
     gtk_container_add (GTK_CONTAINER(widget), image);
     gtk_image_set_from_file (GTK_IMAGE(image), GREETER_DATA_DIR"go-normal.png");
     gtk_widget_set_can_default (widget, FALSE);
@@ -220,7 +234,7 @@ static gboolean gtk_login_box_draw (GtkWidget *widget, cairo_t * ctx)
     cairo_save (ctx);
     GtkLoginBoxPrivate * priv = GTK_LOGIN_BOX(widget)->priv;
     GTK_WIDGET_CLASS(gtk_login_box_parent_class)->draw (widget, ctx);
-    cairo_rectangle (ctx, 2, 2, 205, 205);
+    cairo_rectangle (ctx, 2, 2, UFACE_W, UFACE_H);
     cairo_set_line_width (ctx, 2);
     cairo_set_source_rgb (ctx, 1.0, 1.0, 1.0);
     cairo_stroke (ctx);
@@ -262,35 +276,35 @@ static void gtk_login_box_realize (GtkWidget *widget)
 static void 
 gtk_login_box_size_allocate (GtkWidget *widget, GtkAllocation * allocation)
 {
-    GtkAllocation  child_allocation; // = *allocation;
+    GtkAllocation  child_allocation;
     GtkLoginBox  *box = GTK_LOGIN_BOX(widget);
     gtk_widget_set_allocation (widget, allocation);
 
-    child_allocation.x = allocation->x + 2;
-    child_allocation.y = allocation->y + 2;
-    child_allocation.width = 205;
-    child_allocation.height = 205;
+    child_allocation.x = allocation->x + SPACING;
+    child_allocation.y = allocation->y + SPACING;
+    child_allocation.width = UFACE_W;
+    child_allocation.height = UFACE_H;
     gtk_widget_size_allocate (GTK_WIDGET(box->priv->userface), &child_allocation);
 
-    box->priv->username_x = 2 + 205 + 40;
-    box->priv->username_y = 7;
+    box->priv->username_x = SPACING + UFACE_W + 15;
+    box->priv->username_y = SPACING;
 
-    child_allocation.x = allocation->x + 2 + 205 + 40;
-    child_allocation.y = allocation->y + 2 + 80 + 2 + 1;
-    child_allocation.width = 300;
-    child_allocation.height = 50;
+    child_allocation.x = allocation->x + SPACING + UFACE_W + 15;
+    child_allocation.y = allocation->y + SPACING + UNAME_H + 15;
+    child_allocation.width  = INPUT_W;
+    child_allocation.height = INPUT_H;
     gtk_widget_size_allocate (GTK_WIDGET(box->priv->input), &child_allocation);
 
-    child_allocation.x = allocation->x + 2 + 205 + 42;
-    child_allocation.y = allocation->y + 2 + 80 + 4 + 50 + 4;
-    child_allocation.width = 294;
-    child_allocation.height = 40;
+    child_allocation.x = allocation->x + SPACING + UFACE_W + 15;
+    child_allocation.y = allocation->y + SPACING + UNAME_H + 15 + INPUT_H + SPACING;
+    child_allocation.width = PROMPT_W;
+    child_allocation.height = PROMPT_H;
     gtk_widget_size_allocate (GTK_WIDGET(box->priv->prompt), &child_allocation);
 
-    child_allocation.x = allocation->x + 2 + 205 + 40 + 300 + 14;
-    child_allocation.y = allocation->y + 2 + 80 + 4;
-    child_allocation.width = 80;
-    child_allocation.height = 50;
+    child_allocation.x = allocation->x + SPACING + UFACE_W + 15 + INPUT_W + 15;
+    child_allocation.y = allocation->y + SPACING + UNAME_H + 15;
+    child_allocation.width = BT_W;
+    child_allocation.height = BT_H;
     gtk_widget_size_allocate (GTK_WIDGET(box->priv->loginbutton), &child_allocation);
 }
 
@@ -338,9 +352,17 @@ void gtk_login_box_update_face_name (GtkLoginBox *box, GdkPixbuf *facepixbuf, co
     if (facepixbuf)   
     {
         gtk_image_set_from_pixbuf (GTK_IMAGE(priv->userface), 
-                 gdk_pixbuf_scale_simple (facepixbuf, 205, 205, GDK_INTERP_BILINEAR));
+                 gdk_pixbuf_scale_simple (facepixbuf, UFACE_W, UFACE_H, GDK_INTERP_BILINEAR));
     }
-    pango_layout_set_text (priv->username, name ? name : "YLMF OS", -1);
+    if (name && *name)
+    {
+        pango_layout_set_text (priv->username, name, -1);
+        gtk_widget_hide (GTK_WIDGET(priv->prompt));
+    }
+    else
+    {
+        pango_layout_set_text (priv->username, _("User Name"), -1);
+    }
     gtk_widget_queue_draw (GTK_WIDGET(box));
 }
 
