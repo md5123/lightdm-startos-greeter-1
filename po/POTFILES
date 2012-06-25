@@ -1,0 +1,3 @@
+	../src/backend.c \
+	../src/gtkclock.c \
+	../src/ui.c
