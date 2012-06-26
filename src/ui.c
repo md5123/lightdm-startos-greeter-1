@@ -13,7 +13,7 @@
 #define LDM_SUSPEND   "suspend"
 #define LDM_HIBERNATE "hibernate"
 
-#define LOGIN_BOX_WIDTH     643
+#define LOGIN_BOX_WIDTH     514 
 #define LOGIN_BOX_HEIGHT    154
 #define USER_FACE_SPACING   10
 #define USER_FACE_WIDTH     64
@@ -224,7 +224,7 @@ static void install_users_table (GtkFixed *fixed)
 	{
         ui_widgets.userstable.userlist = 
             g_list_append (ui_widgets.userstable.userlist, 
-                    make_user_item ((LightDMUser *)(userlist->data)) );
+                    make_user_item ((LightDMUser *)(userlist->data)));
 	}
     ui_widgets.userstable.table = make_users_table (ui_widgets.userstable.userlist);
     gtk_fixed_put (fixed, GTK_WIDGET(ui_widgets.userstable.table), ui_widgets.userstable.x, ui_widgets.userstable.y);
@@ -704,10 +704,17 @@ gpointer ui_get_keyboard_layout (void)
 
 static void init_ui_widget()
 {
+    int x, y;
+
 	ui_widgets.loginbox.w = LOGIN_BOX_WIDTH;
 	ui_widgets.loginbox.h = LOGIN_BOX_HEIGHT; 
-	ui_widgets.loginbox.x = monitor_geometry.width / 2;
-	ui_widgets.loginbox.y = monitor_geometry.height / 6;	
+    
+    x = monitor_geometry.width / 2;
+    y = monitor_geometry.height / 6;
+    x = (x + LOGIN_BOX_WIDTH > monitor_geometry.width) ? monitor_geometry.width - LOGIN_BOX_WIDTH : x;
+    y = (y + LOGIN_BOX_HEIGHT > monitor_geometry.height) ? monitor_geometry.height - LOGIN_BOX_HEIGHT : y;
+	ui_widgets.loginbox.x = x;
+	ui_widgets.loginbox.y = y;	
 
 	ui_widgets.userstable.x = ui_widgets.loginbox.x;
 	ui_widgets.userstable.y = ui_widgets.loginbox.y + LOGIN_BOX_HEIGHT + 10;	
