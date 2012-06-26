@@ -1,6 +1,6 @@
 sbin_PROGRAMS = lightdm-ylmfos-greeter
 
-y_greeter_SOURCES = \
+lightdm_ylmfos_greeter_SOURCES = \
 	main.c \
 	backend.c \
 	backend.h \
@@ -17,7 +17,7 @@ y_greeter_SOURCES = \
 	ui.c \
 	ui.h 
 
-y_greeter_CFLAGS = \
+lightdm_ylmfos_greeter_CFLAGS = \
 	-DGETTEXT_PACKAGE=\""$(GETTEXT_PACKAGE)\"" \
 	-DLOCALEDIR=\""$(localedir)"\" \
 	-DGREETER_DATA_DIR=\""$(pkgdatadir)/"\" \
@@ -27,7 +27,7 @@ y_greeter_CFLAGS = \
 	-Wall \
 	$(GREETER_CFLAGS)
 
-y_greeter_LDADD = \
+lightdm_ylmfos_greeter_LDADD = \
 	$(GREETER_LIBS)
 
 DISTCLEANFILES = \
