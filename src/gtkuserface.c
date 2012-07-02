@@ -29,6 +29,8 @@ static void gtk_userface_unmap (GtkWidget *widget);
 static void gtk_userface_size_allocate (GtkWidget *widget, GtkAllocation *allocation);
 
 static gboolean gtk_userface_draw (GtkWidget *widget, cairo_t *ctx);
+static gboolean gtk_userface_focus (GtkWidget *widget, GtkDirectionType direction);
+
 static gboolean gtk_userface_enter_notify (GtkWidget *widget, GdkEventCrossing *event);
 static gboolean gtk_userface_leave_notify (GtkWidget *widget, GdkEventCrossing *event);
 static gboolean username_slide_cb (GtkUserface * userface);
@@ -40,6 +42,7 @@ static void gtk_userface_class_init (GtkUserfaceClass *klass)
 	g_type_class_add_private (klass, sizeof (GtkUserfacePrivate));
 	GtkWidgetClass *widget_class = GTK_WIDGET_CLASS (klass);
 	widget_class->draw = gtk_userface_draw;
+	widget_class->focus = gtk_userface_focus; /* Either leaving or comming, it will be emitted */
 	widget_class->enter_notify_event = gtk_userface_enter_notify;
 	widget_class->leave_notify_event = gtk_userface_leave_notify;
 	widget_class->realize = gtk_userface_realize;
@@ -56,19 +59,22 @@ static void gtk_userface_init (GtkUserface *userface)
 	userface->priv->username = NULL;
 	userface->priv->facepixbuf = NULL;
 	userface->priv->hover = FALSE;
-    gtk_widget_set_has_window (GTK_WIDGET(userface), FALSE); 
 	userface->priv->x = 0;
 	userface->priv->y = 0;
 	userface->priv->name_x = 0;
 	userface->priv->name_w = 0;
 	userface->priv->long_name = FALSE;
 	userface->priv->timeout_id = 0;
+    gtk_widget_set_has_window (GTK_WIDGET(userface), FALSE); 
+    gtk_widget_set_can_focus (GTK_WIDGET(userface), TRUE);
+    gtk_widget_set_can_default (GTK_WIDGET(userface), TRUE);
 }
 
 static gboolean gtk_userface_draw (GtkWidget *widget, cairo_t *ctx)
 {
 	GtkUserfacePrivate *priv = GTK_USERFACE(widget)->priv;
     GtkStyleContext * context = gtk_widget_get_style_context (widget);
+    gtk_style_context_save (context);
 
 	cairo_save (ctx);
     if (priv->facepixbuf_scale)
@@ -85,9 +91,35 @@ static gboolean gtk_userface_draw (GtkWidget *widget, cairo_t *ctx)
         cairo_restore (ctx);
 	}
 	gtk_render_layout (context, ctx, priv->name_x, FACE_SIZE, priv->namelabel);
+
+    if (priv->hover)
+    {
+        cairo_rectangle (ctx, 0, 0, FACE_SIZE, FACE_SIZE);
+        cairo_set_line_width (ctx, 4.0);
+        cairo_set_source_rgb (ctx, 0xff / 255.0, 0x8d / 255.0, 0x27 / 255.0);
+        cairo_stroke (ctx);
+    }
+
+    gtk_style_context_restore (context);
 	cairo_restore (ctx);
 
 	return FALSE;
+}
+
+static gboolean 
+gtk_userface_focus (GtkWidget *widget, GtkDirectionType direction)
+{
+    if (!gtk_widget_is_focus (widget))
+    {
+        GTK_USERFACE(widget)->priv->hover = TRUE;
+        gtk_widget_grab_focus (widget);
+        return TRUE;
+    }
+    else
+    {
+        GTK_USERFACE(widget)->priv->hover = FALSE;
+    }
+    return FALSE;
 }
 
 GtkWidget * gtk_userface_new (const char *face_path, const char *username)
@@ -104,9 +136,8 @@ static gboolean gtk_userface_enter_notify (GtkWidget *widget, GdkEventCrossing *
 {
 	GtkUserfacePrivate * priv = GTK_USERFACE(widget)->priv; 
     priv->hover = TRUE;
-    if (!priv->long_name)
-        return FALSE;
-    priv->timeout_id = g_timeout_add (40, (GSourceFunc)username_slide_cb, GTK_USERFACE(widget));
+    if (priv->long_name)
+        priv->timeout_id = g_timeout_add (40, (GSourceFunc)username_slide_cb, GTK_USERFACE(widget));
 	gtk_widget_queue_draw (widget);
 	return FALSE;
 }
@@ -115,11 +146,12 @@ static gboolean gtk_userface_leave_notify (GtkWidget *widget, GdkEventCrossing *
 {
 	GtkUserfacePrivate * priv = GTK_USERFACE(widget)->priv;
     priv->hover = FALSE;
-    if (!priv->long_name)
-        return FALSE;
-    priv->name_x = 0;
-    g_source_remove (priv->timeout_id);
-    priv->timeout_id = 0;
+    if (priv->long_name)
+    {
+        priv->name_x = 0;
+        g_source_remove (priv->timeout_id);
+        priv->timeout_id = 0;
+    }
 	gtk_widget_queue_draw (widget);
 	return FALSE;
 }

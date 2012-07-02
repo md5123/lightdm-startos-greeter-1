@@ -62,7 +62,7 @@ static void user_removed_cb (LightDMUserList * list, LightDMUser *user);
 static void login_box_input_ready_cb (GtkLoginBox *box, const gchar *text, gpointer data);
 static void login_box_update_face_cb (GtkLoginBox *box, const gchar *username, gpointer data);
 static void login_box_reborn_cb (GtkLoginBox *box, gpointer data);
-static void userface_release_cb (GtkWidget * widget, gpointer data);
+static void userface_release_cb (GtkWidget * widget, GdkEvent * event, gpointer data);
 static GtkFixed * make_users_table (GList *userlist);
 static void make_sys_button (_sys_button *bt);
 
@@ -78,6 +78,7 @@ GtkWidget * ui_make_root_win ()
 
 	win = ui_init_win ();
 	fixed = gtk_fixed_new ();
+    gtk_widget_set_can_focus (fixed, FALSE);
 	gtk_container_add (GTK_CONTAINER(win), fixed);
     
 	init_ui_widget ();
@@ -87,7 +88,7 @@ GtkWidget * ui_make_root_win ()
     install_buttons_bg (GTK_FIXED(fixed));
  	install_power_button (GTK_FIXED(fixed));
  	install_lang_button (GTK_FIXED(fixed));
- 	install_keyboard_button (GTK_FIXED(fixed));
+ 	/* install_keyboard_button (GTK_FIXED(fixed)); */
  	install_session_button (GTK_FIXED(fixed));
     install_clock_label (GTK_FIXED(fixed));
     set_last_user ();
@@ -239,8 +240,8 @@ static GtkWidget * make_user_item (LightDMUser *user)
     userface = gtk_userface_new (facepath ? facepath : GREETER_DATA_DIR "defaultface.png",
             username);
     gtk_widget_set_size_request (userface, USER_FACE_WIDTH, USER_FACE_HEIGHT);
-    g_signal_connect (G_OBJECT(userface), "button-release-event", 
-            G_CALLBACK(userface_release_cb), NULL); 
+    g_signal_connect (userface, "button-release-event", G_CALLBACK(userface_release_cb), NULL); 
+    g_signal_connect (userface, "key-release-event", G_CALLBACK(userface_release_cb), NULL); 
     gtk_widget_show (userface);
     return userface;
 }
@@ -306,8 +307,12 @@ static void update_userface_size_allocation ()
     }
 }
 
-static void userface_release_cb (GtkWidget * widget, gpointer data)
+static void userface_release_cb (GtkWidget * widget, GdkEvent * event, gpointer data)
 {
+    if (event->type == GDK_KEY_RELEASE && 
+            (event->key.hardware_keycode != 36 &&
+             event->key.hardware_keycode != 104))
+        return ;
     GtkUserface * user = GTK_USERFACE(widget);
     const gchar * name = gtk_userface_get_name (user);
     backend_authenticate_username_only (name);
@@ -326,7 +331,9 @@ static GtkFixed * make_users_table (GList *userlist)
 
     label = gtk_label_new (NULL);
     gtk_label_set_markup (GTK_LABEL(label), g_strdup_printf ("<span color=\"white\" font=\"Sans 15\">%s</span>", _("Other Users")));
+
     fixed = (GtkFixed *)gtk_fixed_new ();
+    gtk_widget_set_can_focus (GTK_WIDGET(fixed), FALSE);
     gtk_fixed_put (fixed, label, 5, 2); 
 
     for (i = 0; userlist; userlist = userlist->next, i++)
@@ -336,6 +343,7 @@ static GtkFixed * make_users_table (GList *userlist)
                 (i % 2) * (USER_FACE_WIDTH + USER_FACE_SPACING), 
                 (i / 2 + 1) * USER_FACE_SPACING + (i / 2) * USER_FACE_HEIGHT + 30); 
     }
+    gtk_container_set_focus_chain (GTK_CONTAINER(fixed), ui_widgets.userstable.userlist);
     return fixed;
 }
 
@@ -644,10 +652,20 @@ static void set_last_user ()
     const gchar * name = NULL;
     GdkPixbuf * pixbuf = NULL;
 
+    /*
     if (!last_user_name || !item)
         goto SET_ORIGINAL_FACE_NAME;
+     */
 
-    while (item) 
+    if (!item)
+        goto SET_ORIGINAL_FACE_NAME;
+    if (!last_user_name)
+    {
+        name = gtk_userface_get_name (GTK_USERFACE(item->data));
+        goto SET_FIRSET_USER;
+    }
+
+    while (item)
     {
         name = gtk_userface_get_name (GTK_USERFACE(item->data));
         if (!g_strcmp0 (last_user_name, name))
@@ -660,6 +678,7 @@ static void set_last_user ()
     if (!item)
         goto SET_ORIGINAL_FACE_NAME;
 
+SET_FIRSET_USER:
     backend_authenticate_username_only (name);
 
     /*  
@@ -705,7 +724,7 @@ gpointer ui_get_keyboard_layout (void)
 static void init_ui_widget()
 {
     int x, y;
-
+    
 	ui_widgets.loginbox.w = LOGIN_BOX_WIDTH;
 	ui_widgets.loginbox.h = LOGIN_BOX_HEIGHT; 
     
@@ -719,7 +738,7 @@ static void init_ui_widget()
 	ui_widgets.userstable.x = ui_widgets.loginbox.x;
 	ui_widgets.userstable.y = ui_widgets.loginbox.y + LOGIN_BOX_HEIGHT + 10;	
 
-	ui_widgets.buttons_bg.w = 228;
+	ui_widgets.buttons_bg.w = 176;
 	ui_widgets.buttons_bg.h = 52; 
 	ui_widgets.buttons_bg.x = 20;
 	ui_widgets.buttons_bg.y = monitor_geometry.height - 62;
@@ -730,11 +749,15 @@ static void init_ui_widget()
 	ui_widgets.language.x = 40 + SYS_BUTTON_WIDTH + 20;
 	ui_widgets.language.y = ui_widgets.power.y;
 
+	ui_widgets.session.x = 40 + SYS_BUTTON_WIDTH + 20 + SYS_BUTTON_WIDTH + 20;
+	ui_widgets.session.y = ui_widgets.power.y;
+    /*
 	ui_widgets.keyboard.x = 40 + SYS_BUTTON_WIDTH + 20 + SYS_BUTTON_WIDTH + 20;
 	ui_widgets.keyboard.y = ui_widgets.power.y;
 
 	ui_widgets.session.x = 40 + SYS_BUTTON_WIDTH + 20 + SYS_BUTTON_WIDTH + 20 + SYS_BUTTON_WIDTH + 20;
 	ui_widgets.session.y = ui_widgets.power.y;
+    */
 
     ui_widgets.clock.w = 280;
     ui_widgets.clock.h = 100;

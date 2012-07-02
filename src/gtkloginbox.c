@@ -126,6 +126,7 @@ static void gtk_login_box_init (GtkLoginBox *box)
 
     box->priv = GTK_LOGIN_BOX_GET_PRIVATE (box);
     gtk_widget_set_has_window(GTK_WIDGET(box), FALSE);
+    gtk_widget_set_can_focus (GTK_WIDGET(box), FALSE);
 
     widget = gtk_entry_new ();
     border.left = 12;
@@ -144,6 +145,7 @@ static void gtk_login_box_init (GtkLoginBox *box)
     gtk_container_add (GTK_CONTAINER(box), widget);
 
     widget = gtk_image_new_from_file (GREETER_DATA_DIR"defaultface.png");
+    gtk_widget_set_can_focus (widget, FALSE);
     gtk_widget_show (widget);
     box->priv->userface = (GtkImage *)widget;
     gtk_container_add (GTK_CONTAINER(box), widget);
@@ -153,8 +155,6 @@ static void gtk_login_box_init (GtkLoginBox *box)
     gtk_widget_set_size_request (image, BT_W, BT_H);
     gtk_container_add (GTK_CONTAINER(widget), image);
     gtk_image_set_from_file (GTK_IMAGE(image), GREETER_DATA_DIR"go-normal.png");
-    gtk_widget_set_can_default (widget, FALSE);
-    gtk_widget_set_can_focus (widget, FALSE);
     gtk_event_box_set_visible_window (GTK_EVENT_BOX(widget), FALSE);
 	g_signal_connect (widget, "button-release-event", G_CALLBACK(login_button_release_cb), box);
     g_signal_connect (widget, "enter-notify-event", G_CALLBACK(login_button_enter_cb), image);
