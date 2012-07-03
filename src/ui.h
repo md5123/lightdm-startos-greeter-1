@@ -73,8 +73,5 @@ gpointer ui_get_language (void);
 gpointer ui_get_keyboard_layout (void);
 
 
-
-
-
 #endif /* __UI_H__ */
 

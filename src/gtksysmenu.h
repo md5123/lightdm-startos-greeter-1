@@ -23,7 +23,7 @@ struct _GtkSysMenuItem
     const char  *text;
     const char  *code;
     PangoLayout *layout;
-    void (* func) (GtkSysMenuItem *item, gpointer f_data); 
+    void (* func) (GtkSysMenuItem *item, ...);
     gpointer func_data;
 	gint x, y;
     gboolean  selected;

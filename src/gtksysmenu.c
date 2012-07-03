@@ -11,7 +11,8 @@
 
 enum 
 {
-    USER_SELECTED,
+    USER_SELECTED_SIGNAL,
+    MENU_HIDE_SIGNAL,
     LAST_SIGNAL
 };
 
@@ -20,6 +21,8 @@ typedef enum
     SCROLL_DOWN,
     SCROLL_UP
 } ScrollOrientation;
+
+guint signals_id[LAST_SIGNAL] = { 0 };
 
 struct _GtkSysMenuPrivate
 {
@@ -59,7 +62,7 @@ static void scroll_sys_menu (GtkSysMenuItem ** item, gint start, gint end, Scrol
 static gboolean gtk_sys_menu_focus_out (GtkWidget * widget, GdkEventFocus * event)
 {
     gtk_widget_hide (widget);
-    return FALSE;
+    return TRUE;
 }
 
 static void gtk_sys_menu_class_init (GtkSysMenuClass *klass)
@@ -85,6 +88,13 @@ static void gtk_sys_menu_class_init (GtkSysMenuClass *klass)
             g_cclosure_marshal_VOID__VOID,
             G_TYPE_NONE, 1, G_TYPE_POINTER);
     */
+
+    signals_id [MENU_HIDE_SIGNAL] = 
+        g_signal_new ("menu-hide", GTK_TYPE_SYS_MENU,
+            G_SIGNAL_RUN_LAST, 0, NULL, NULL,
+            g_cclosure_marshal_VOID__VOID,
+            G_TYPE_NONE, 0);
+
 }
 
 static void gtk_sys_menu_init (GtkSysMenu *menu)
@@ -369,6 +379,7 @@ static gboolean gtk_sys_menu_scroll_event (GtkWidget * widget, GdkEventScroll * 
 
 static gboolean gtk_sys_menu_key_press_event (GtkWidget * widget, GdkEventKey * event)
 {
+    gboolean ret_val = TRUE;
     GtkSysMenuPrivate * priv = GTK_SYS_MENU(widget)->priv;
     switch (event->hardware_keycode)
     {
@@ -415,12 +426,15 @@ static gboolean gtk_sys_menu_key_press_event (GtkWidget * widget, GdkEventKey * 
             break;
 
         case 9:
+            g_signal_emit (widget, signals_id[MENU_HIDE_SIGNAL], 0);
             gtk_widget_hide (widget);
             break;
+        default:
+            ret_val = FALSE;
     }
 
     gtk_widget_queue_draw (widget);
-    return TRUE;
+    return ret_val;
 }
 
 static void scroll_sys_menu (GtkSysMenuItem ** item, gint start, gint end, ScrollOrientation op)

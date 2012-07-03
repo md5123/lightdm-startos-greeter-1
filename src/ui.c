@@ -1,3 +1,13 @@
+/* vim: ts=4 sw=4 expandtab smartindent cindent */
+
+/*
+ * License: GPLv3
+ * Copyright: vali 
+ * Author: chen-qx@live.cn
+ * Date: 2012-05
+ * Description: A developing LightDM greeter for YLMF OS 5
+ */
+
 #include <gtk/gtk.h>
 #include <glib/gi18n.h>
 #include <lightdm.h>
@@ -50,6 +60,8 @@ static GtkWidget * make_session_menu (void);
 static GtkWidget * make_keyboard_menu (void);
 static gboolean popup_sys_menu (GtkWidget *widget, GdkEvent *event, gpointer data);
 static gboolean sys_button_change_image (GtkWidget *widget, GdkEvent *event, gpointer data);
+static gboolean sys_button_key_press_cb (GtkWidget *widget, GdkEvent *event, gpointer data);
+static gboolean sys_button_focus_cb (GtkWidget *widget, GtkDirectionType direction, gpointer data);
 static gboolean buttons_bg_draw_cb (GtkWidget * label, cairo_t * ctx, gpointer data);
 static GtkWidget * make_user_item (LightDMUser *user);
 
@@ -65,16 +77,47 @@ static void login_box_reborn_cb (GtkLoginBox *box, gpointer data);
 static void userface_release_cb (GtkWidget * widget, GdkEvent * event, gpointer data);
 static GtkFixed * make_users_table (GList *userlist);
 static void make_sys_button (_sys_button *bt);
+static void sys_menu_button_re_focus (GtkWidget * widget, gpointer data);
 
 static void update_userface_size_allocation (void);
 
 static void set_last_user (void);
 
+static gboolean 
+sys_button_focus_cb (GtkWidget *widget, GtkDirectionType direction, gpointer data)
+{
+	_sys_button *bt = (_sys_button *)data;
+    if (gtk_widget_is_focus (widget))
+    {
+        gtk_image_set_from_file (bt->img_empty, bt->img_nor);
+        return FALSE;
+    }
+    gtk_image_set_from_file (bt->img_empty, bt->img_hl);
+    gtk_widget_grab_focus (widget);
+    return TRUE;
+}
+
+static gboolean 
+sys_button_key_press_cb (GtkWidget *widget, GdkEvent *event, gpointer data)
+{
+    guint16 key_val = event->key.hardware_keycode;
+    if ( key_val == 36 || key_val == 111)
+    {
+        popup_sys_menu (widget, event, data);
+        return TRUE;
+    }
+    return FALSE;
+}
+
+static void sys_menu_button_re_focus (GtkWidget * widget, gpointer data)
+{
+    gtk_widget_grab_focus (GTK_WIDGET(data));
+}
 
 GtkWidget * ui_make_root_win ()
 {
-	GtkWidget *win;
-	GtkWidget *fixed;
+	GtkWidget * win;
+	GtkWidget * fixed;
 
 	win = ui_init_win ();
 	fixed = gtk_fixed_new ();
@@ -92,7 +135,7 @@ GtkWidget * ui_make_root_win ()
  	install_session_button (GTK_FIXED(fixed));
     install_clock_label (GTK_FIXED(fixed));
     set_last_user ();
-
+    
 	return win;
 }
 
@@ -372,9 +415,13 @@ static void make_sys_button (_sys_button *bt)
 	GtkWidget * img;
     
     widget = gtk_event_box_new ();
+    gtk_widget_set_can_focus (widget, TRUE);
     img = gtk_image_new ();
 	g_signal_connect (widget, "enter-notify-event", G_CALLBACK(popup_sys_menu), bt);
 	g_signal_connect (widget, "leave-notify-event", G_CALLBACK(sys_button_change_image), bt);
+	g_signal_connect (widget, "key-press-event", G_CALLBACK(sys_button_key_press_cb), bt);
+	g_signal_connect (widget, "focus", G_CALLBACK(sys_button_focus_cb), bt);
+    g_signal_connect (bt->menu, "menu-hide", G_CALLBACK(sys_menu_button_re_focus), widget); 
 	gtk_event_box_set_visible_window (GTK_EVENT_BOX(widget), FALSE);
 
     gtk_image_set_from_file (GTK_IMAGE(img), bt->img_nor);
@@ -413,7 +460,6 @@ static gboolean popup_sys_menu (GtkWidget *widget, GdkEvent *event, gpointer dat
 
 	return FALSE;
 }
-
 
 static void install_power_button (GtkFixed *fixed)
 {
