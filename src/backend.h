@@ -36,6 +36,7 @@ gchar * backend_state_file_get_language (void);
 gchar * backend_state_file_get_keyboard (void);
 gchar * backend_state_file_get_user     (void);
 
+unsigned char chk_machine_type (void);
 
 
 #endif /* __BACKEND_H__ */

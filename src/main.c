@@ -15,8 +15,25 @@
 #include <gtk/gtk.h>
 #include "backend.h"
 #include "ui.h"
+#include <stdlib.h>
+
+void set_numlock (void);
 
 
+void set_numlock ()
+{
+    unsigned char machine_type = 2;
+
+    machine_type = chk_machine_type ();
+    if (machine_type == 0x0a || machine_type == 0x09)
+    {
+        system("numlockx off");
+    }
+    else
+    {
+        system("numlockx on");
+    }
+}
 
 int main (int argc, char *argv[])
 {
@@ -25,6 +42,8 @@ int main (int argc, char *argv[])
     setlocale (LC_ALL, "");
     bindtextdomain (TEXTDOMAIN, LOCALEDIR);
     textdomain (TEXTDOMAIN);
+
+    set_numlock ();
 
 	gtk_init (&argc, &argv);
 

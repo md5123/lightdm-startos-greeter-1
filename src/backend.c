@@ -4,9 +4,23 @@
 #include <gdk/gdkx.h>
 #include <lightdm.h>
 #include <stdlib.h>
+#include <sys/mman.h>
+#include <unistd.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <fcntl.h>
+#include <errno.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 
 
 typedef struct _backend_componet backend_componet;
+
+typedef unsigned int   u32;
+typedef unsigned short u16;
+typedef unsigned char  u8;
+
 
 backend_componet back;
 gboolean has_prompted = FALSE;
@@ -20,6 +34,8 @@ static void authentication_complete_cb (LightDMGreeter *greeter);
 static void start_session (void);
 
 static cairo_surface_t * backend_create_root_surface (GdkScreen *screen);
+
+static void * mapmem_to_mem (size_t base, size_t len);
 
 static void show_prompt_cb (LightDMGreeter *greeter, const gchar *prompt, LightDMPromptType type)
 {
@@ -432,4 +448,94 @@ backend_create_root_surface (GdkScreen *screen)
                                 cairo_xlib_surface_get_drawable (surface));
 
     return surface;  
+}
+
+
+unsigned char chk_machine_type ()
+{
+    u16   i = 0;
+    u16   smstructlen = 0;
+    u32   smstructp = 0;
+    u8  * smentryp  = NULL;
+    unsigned char ret_val = 2; /* 2 for "Unknow" */
+
+    void * mem = NULL;
+
+    if (!(mem = mapmem_to_mem (0xF0000, 0x10000)))
+        return ret_val;
+
+    while (i < 0xFFF0)
+    {
+        if (!memcmp (mem + i, "_SM_", 4))
+        {
+            goto MATCH;
+        }
+        i += 16;
+    }
+    fprintf (stderr, "Can't found the Anchor String\n");
+    goto NOT_MATCH;
+
+MATCH:
+    smstructp = (u32)(*((u32 *)(mem + i + 0x18))); /* SMBIOS structure table start address */
+    smstructlen = (u16)(*((u16 *)(mem + i + 0x16))); /* SMBIOS structure table length */
+    free (mem);
+    if (!(mem = mapmem_to_mem (smstructp, smstructlen)))
+    {
+        fprintf (stderr, "Error: Read mem for SMBIOS structure table\n");
+        goto NOT_MATCH;
+    }
+    smentryp = mem;
+    while (smentryp <= (u8 *)(mem + smstructlen))
+    {
+        if (smentryp[0] == 3) /* type "3" for System Enclosure or chassis */
+        {
+            ret_val = smentryp[5];
+            break ;
+        }
+        smentryp = smentryp + smentryp[1]; /* base + length */
+        while (smentryp <= (u8 *)(mem + smstructlen) && (smentryp[0] != 0 || smentryp[1] != 0))
+            ++smentryp;
+        smentryp += 2;
+    }
+    
+NOT_MATCH:
+    
+    free (mem);
+
+    return ret_val;
+}
+
+static void * mapmem_to_mem (size_t base, size_t len)
+{
+    void * mapp = NULL;
+    void * memp = NULL;
+    int fd;
+    unsigned long int offset;
+
+    offset = base % sysconf (_SC_PAGESIZE);
+
+    if ((fd = open ("/dev/mem", O_RDONLY)) < 0)
+    {
+        perror ("/dev/mem ");
+        return NULL;
+    }
+    if (!(memp = malloc (len)))
+    {
+        close (fd);
+        fprintf (stderr, "Error: malloc ()");
+        return NULL;
+    }
+
+    if ((mapp = mmap (NULL, len + offset, PROT_READ, MAP_PRIVATE, fd, base - offset)) < 0) 
+    {
+        close (fd);
+        free (memp);
+        perror ("mmap ");
+        return NULL;
+    }
+    memcpy (memp, mapp + offset, len);
+    munmap (mapp, len + offset);
+    close (fd);
+
+    return memp;
 }
