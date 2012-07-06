@@ -19,7 +19,7 @@ msgstr ""
 
 #: ../src/backend.c:141
 msgid "Authenticated Failed, Try Again"
-msgstr "验证失败,请重试 !"
+msgstr "密码验证失败，请重试。"
 
 #: ../src/backend.c:169 ../src/ui.c:681
 msgid "Login"
