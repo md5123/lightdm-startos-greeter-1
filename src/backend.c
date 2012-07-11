@@ -1,3 +1,15 @@
+/* vim: ts=4 sw=4 expandtab smartindent cindent */
+
+/*
+ * License: GPLv3
+ * Copyright (C) Dongguan Vali Network Technology Co., Ltd.
+ * Author: chen-qx@live.cn
+ * Date: 2012-05
+ * Description: A developing LightDM greeter for YLMF OS 5
+ */
+
+
+
 #include <glib/gi18n.h>
 #include "backend.h"
 #include "ui.h"
@@ -472,7 +484,7 @@ unsigned char chk_machine_type ()
         }
         i += 16;
     }
-    fprintf (stderr, "Can't found the Anchor String\n");
+    g_warning("Can't found the Anchor String");
     goto NOT_MATCH;
 
 MATCH:
@@ -481,7 +493,7 @@ MATCH:
     free (mem);
     if (!(mem = mapmem_to_mem (smstructp, smstructlen)))
     {
-        fprintf (stderr, "Error: Read mem for SMBIOS structure table\n");
+        g_warning("Error: Read mem for SMBIOS structure table");
         goto NOT_MATCH;
     }
     smentryp = mem;
@@ -516,13 +528,13 @@ static void * mapmem_to_mem (size_t base, size_t len)
 
     if ((fd = open ("/dev/mem", O_RDONLY)) < 0)
     {
-        perror ("/dev/mem ");
+        g_warning("Error: Open /dev/mem");
         return NULL;
     }
     if (!(memp = malloc (len)))
     {
         close (fd);
-        fprintf (stderr, "Error: malloc ()");
+        g_warning("Error: malloc ()");
         return NULL;
     }
 
@@ -530,7 +542,7 @@ static void * mapmem_to_mem (size_t base, size_t len)
     {
         close (fd);
         free (memp);
-        perror ("mmap ");
+        g_warning("Error: mmap()");
         return NULL;
     }
     memcpy (memp, mapp + offset, len);

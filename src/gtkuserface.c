@@ -165,6 +165,9 @@ static void gtk_userface_realize (GtkWidget *widget)
 	gint attributes_mask;
 	GtkUserfacePrivate *priv = GTK_USERFACE (widget)->priv;
 
+    PangoAttrList  * pattrs;
+    PangoAttribute * pattr;
+
 	gtk_widget_set_realized (widget, TRUE);
 	gtk_widget_get_allocation (widget, &allocation);
 
@@ -200,6 +203,12 @@ static void gtk_userface_realize (GtkWidget *widget)
 
     /* Don't  change below code to other position in this function */
     priv->namelabel = gtk_widget_create_pango_layout (widget, priv->username);
+
+    pattrs = pango_attr_list_new ();
+    pattr  = pango_attr_foreground_new (0xffff, 0xffff, 0xffff);
+    pango_attr_list_change (pattrs, pattr);
+    pango_layout_set_attributes (priv->namelabel, pattrs);
+
 	pango_layout_set_font_description (priv->namelabel, pango_font_description_from_string ("Sans 10"));
     pango_layout_get_pixel_size(priv->namelabel, &priv->name_w, NULL);
     if (priv->name_w <= FACE_SIZE)

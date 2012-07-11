@@ -72,7 +72,7 @@ static void user_changed_cb (LightDMUserList * list, LightDMUser *user);
 static void user_removed_cb (LightDMUserList * list, LightDMUser *user);
 
 static void login_box_input_ready_cb (GtkLoginBox *box, const gchar *text, gpointer data);
-static void login_box_update_face_cb (GtkLoginBox *box, const gchar *username, gpointer data);
+static void login_box_update_face_name_cb (GtkLoginBox *box, const gchar *username, gpointer data);
 static void login_box_reborn_cb (GtkLoginBox *box, gpointer data);
 static void userface_release_cb (GtkWidget * widget, GdkEvent * event, gpointer data);
 static GtkFixed * make_users_table (GList *userlist);
@@ -193,7 +193,7 @@ static void install_login_box  (GtkFixed *fixed)
 {
 	GtkWidget *box = gtk_login_box_new ();
 	g_signal_connect (G_OBJECT(box), "input-ready", G_CALLBACK(login_box_input_ready_cb), NULL);
-	g_signal_connect (G_OBJECT(box), "update-face", G_CALLBACK(login_box_update_face_cb), NULL);
+	g_signal_connect (G_OBJECT(box), "update-face-name", G_CALLBACK(login_box_update_face_name_cb), NULL);
 	g_signal_connect (G_OBJECT(box), "reborn", G_CALLBACK(login_box_reborn_cb), NULL);
 	gtk_widget_set_size_request (box, ui_widgets.loginbox.w, ui_widgets.loginbox.h);
 	ui_widgets.loginbox.loginbox = GTK_LOGIN_BOX(box);
@@ -207,7 +207,7 @@ static void login_box_input_ready_cb (GtkLoginBox *box, const gchar *text, gpoin
     gtk_widget_set_sensitive (GTK_WIDGET(box), FALSE);
 }
 
-static void login_box_update_face_cb (GtkLoginBox *box, const gchar *username, gpointer data)
+static void login_box_update_face_name_cb (GtkLoginBox *box, const gchar *username, gpointer data)
 {
     GList * item = ui_widgets.userstable.userlist;
     const gchar * name;
@@ -221,10 +221,13 @@ static void login_box_update_face_cb (GtkLoginBox *box, const gchar *username, g
             break ;
     }
     if (!item)
+    {
+        gtk_login_box_update_face_name (box, NULL, username);
         return ;
+    }
     gtk_login_box_update_face_name (box, 
             (GdkPixbuf *)gtk_userface_get_facepixbuf (item->data),
-            NULL);
+            username);
 }
 
 static void login_box_reborn_cb (GtkLoginBox *box, gpointer data)
@@ -279,6 +282,9 @@ static GtkWidget * make_user_item (LightDMUser *user)
     GtkWidget * userface;
     const gchar * username = lightdm_user_get_name (user);
     const gchar * facepath = lightdm_user_get_image (user);
+    
+    if (!g_file_test (facepath, G_FILE_TEST_EXISTS))
+        facepath = NULL;
 
     userface = gtk_userface_new (facepath ? facepath : GREETER_DATA_DIR "defaultface.png",
             username);
@@ -294,16 +300,17 @@ static void user_added_cb (LightDMUserList * list, LightDMUser *user)
     GtkWidget * widget = make_user_item (user);
     gtk_widget_show (widget);
     gint index;
+    index = g_list_length (ui_widgets.userstable.userlist);
+    g_warning ("index = %d\n", index);
     ui_widgets.userstable.userlist = g_list_append (ui_widgets.userstable.userlist, widget);
-    index = g_list_length (ui_widgets.userstable.userlist) - 1;
     gtk_fixed_put (ui_widgets.userstable.table, GTK_WIDGET(widget), 
-            (index % 2 + 1) * USER_FACE_SPACING + (index % 2) * USER_FACE_WIDTH, 
-            (index / 2 + 1) * USER_FACE_SPACING + (index / 2) * USER_FACE_HEIGHT); 
+            (index % 2) * (USER_FACE_SPACING + USER_FACE_WIDTH), 
+            (index / 2 + 1) * USER_FACE_SPACING + (index / 2) * USER_FACE_HEIGHT + 30); 
 }
 
 static void user_changed_cb (LightDMUserList * list, LightDMUser *user)
 {
-    g_warning ("I'm sorry, I don't know When you be emited ??\n");
+    /* When Editing file /etc/passwd, it will be emited */ 
     /* If Not change user name , then I am not care about it */
 }
 
@@ -325,8 +332,7 @@ static void user_removed_cb (LightDMUserList * list, LightDMUser *user)
 
 USER_ITEM_FOUND:
     gtk_container_remove (GTK_CONTAINER(ui_widgets.userstable.table), GTK_WIDGET(item->data));
-    gtk_widget_destroy (GTK_WIDGET(item->data));
-    ui_widgets.userstable.userlist = g_list_remove (ui_widgets.userstable.userlist, item);
+    ui_widgets.userstable.userlist = g_list_remove (ui_widgets.userstable.userlist, item->data);
     /* FIXME:
      * I am not sure weather the list and its item address will change or not
      * when remove one of its item. 
@@ -341,10 +347,11 @@ static void update_userface_size_allocation ()
     gint i = 0;
     gint x, y;
 
+    children = children->next; /* skip "Other Users" label */
     for (; children; children = children->next, i++)
     {
-        x = (i % 2 + 1) * USER_FACE_SPACING + (i % 2) * USER_FACE_WIDTH, 
-        y = (i / 2 + 1) * USER_FACE_SPACING + (i / 2) * USER_FACE_HEIGHT; 
+        x = (i % 2) * (USER_FACE_SPACING + USER_FACE_WIDTH), 
+        y = (i / 2 + 1) * USER_FACE_SPACING + (i / 2) * USER_FACE_HEIGHT + 30; 
         gtk_fixed_move (GTK_FIXED(ui_widgets.userstable.table),
                 GTK_WIDGET(children->data), x, y);
     }

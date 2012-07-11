@@ -1,3 +1,5 @@
+/* vim: ts=4 sw=4 expandtab smartindent cindent */
+
 /*
  * License: GPLv3
  * Copyright: vali 
@@ -6,15 +8,10 @@
  * Description: A developing LightDM greeter for YLMF OS 5
  */
 
-
-
-/* vim: ts=4 sw=4 expandtab smartindent cindent */
-
 #include <gtk/gtk.h>
 #include <glib/gi18n.h>
 #include "gtkloginbox.h"
 #include "gtkprompt.h"
-
 
 #define UFACE_W  150
 #define UFACE_H  UFACE_W
@@ -32,7 +29,7 @@
 enum 
 {
     INPUT_READY_SIGNAL, 
-    UPDATE_FACE_SIGNAL,
+    UPDATE_FACE_NAME_SIGNAL,
     REBORN_SIGNAL,
     LAST_SIGNAL
 };
@@ -103,8 +100,8 @@ static void gtk_login_box_class_init (GtkLoginBoxClass *klass)
                         g_cclosure_marshal_VOID__STRING, 
                         G_TYPE_NONE, 1, G_TYPE_STRING);
 
-    signals_id[UPDATE_FACE_SIGNAL] = 
-       g_signal_new ("update-face", 
+    signals_id[UPDATE_FACE_NAME_SIGNAL] = 
+       g_signal_new ("update-face-name", 
 						GTK_TYPE_LOGIN_BOX, 
                         G_SIGNAL_RUN_LAST, 0, NULL, NULL, 
                         g_cclosure_marshal_VOID__STRING, 
@@ -219,10 +216,11 @@ static void entry_ready_cb (GtkWidget * widget, gpointer data)
 {
 	GtkLoginBox *box = GTK_LOGIN_BOX(data);
     gchar *text = g_strdup(gtk_entry_get_text(box->priv->input));
+    if (!(text && *text))
+        return ;
     if (gtk_entry_get_visibility (box->priv->input)) 
     {
-        pango_layout_set_text (box->priv->username, text, -1);
-        g_signal_emit (box, signals_id[UPDATE_FACE_SIGNAL], 0, text);
+        g_signal_emit (box, signals_id[UPDATE_FACE_NAME_SIGNAL], 0, text);
     }
     gtk_widget_queue_draw (widget);
 	g_signal_emit (box, signals_id[INPUT_READY_SIGNAL], 0, text);
