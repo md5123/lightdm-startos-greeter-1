@@ -1,20 +1,26 @@
 #include "gtkuserface.h"
-#include <math.h>
+#include <pthread.h>
+#include <utmpx.h>
 
 #define FACE_SIZE 64
+#define LOGIN_INDICATOR_SIZE 20
 
 struct _GtkUserfacePrivate
 {
-	GdkWindow *event_window;
+	GdkWindow * event_window;
+    GFile     * utmp_file;
+    GFileMonitor * utmp_monitor;
 	gint x, y;
     const GdkPixbuf *facepixbuf;
     const GdkPixbuf *facepixbuf_scale;
+    const GdkPixbuf *login_indicator;
 	const gchar * facepath;
     const gchar * username;
     gboolean long_name;
     gint name_x, name_w;
     PangoLayout *namelabel;
 	gboolean hover;
+	gboolean current_login;
     guint timeout_id;
 };
 
@@ -36,6 +42,13 @@ static gboolean gtk_userface_leave_notify (GtkWidget *widget, GdkEventCrossing *
 static gboolean username_slide_cb (GtkUserface * userface);
 
 G_DEFINE_TYPE (GtkUserface, gtk_userface, GTK_TYPE_WIDGET);
+
+static void check_current_user (GtkUserface *userface);
+static void utmp_file_changed_cb (GFileMonitor * monitor,
+        GFile * file,
+        GFile * otherfile,
+        GFileMonitorEvent event_type,
+        GtkUserface * userface);
 
 static void gtk_userface_class_init (GtkUserfaceClass *klass)
 {
@@ -64,6 +77,7 @@ static void gtk_userface_init (GtkUserface *userface)
 	userface->priv->name_x = 0;
 	userface->priv->name_w = 0;
 	userface->priv->long_name = FALSE;
+	userface->priv->current_login = FALSE;
 	userface->priv->timeout_id = 0;
     gtk_widget_set_has_window (GTK_WIDGET(userface), FALSE); 
     gtk_widget_set_can_focus (GTK_WIDGET(userface), TRUE);
@@ -100,6 +114,16 @@ static gboolean gtk_userface_draw (GtkWidget *widget, cairo_t *ctx)
         cairo_stroke (ctx);
     }
 
+    if (priv->current_login && priv->login_indicator)
+    {
+        cairo_save (ctx);
+        cairo_translate (ctx, FACE_SIZE - LOGIN_INDICATOR_SIZE, FACE_SIZE - LOGIN_INDICATOR_SIZE);
+        cairo_rectangle (ctx, 0, 0, LOGIN_INDICATOR_SIZE, LOGIN_INDICATOR_SIZE);
+        cairo_clip (ctx);
+		gdk_cairo_set_source_pixbuf (ctx, priv->login_indicator, 0, 0);
+		cairo_paint (ctx);
+        cairo_restore (ctx);
+    }
     gtk_style_context_restore (context);
 	cairo_restore (ctx);
 
@@ -125,10 +149,11 @@ gtk_userface_focus (GtkWidget *widget, GtkDirectionType direction)
 GtkWidget * gtk_userface_new (const char *face_path, const char *username)
 {
 	GtkUserface *userface;
+
 	userface = g_object_new (GTK_TYPE_USERFACE, NULL);
 	userface->priv->facepath = face_path;
 	userface->priv->username = username;
-
+    g_thread_create ((GThreadFunc)check_current_user, userface, FALSE, NULL);
 	return  GTK_WIDGET(userface);
 }
 
@@ -180,6 +205,12 @@ static void gtk_userface_realize (GtkWidget *widget)
         }
         priv->facepixbuf_scale = gdk_pixbuf_scale_simple (priv->facepixbuf, FACE_SIZE, FACE_SIZE, GDK_INTERP_BILINEAR); 
 	}
+
+    if (!(priv->login_indicator = gdk_pixbuf_new_from_file(GREETER_DATA_DIR "currentlogin.png", NULL)))
+    {
+        g_warning ("Open login indicator image \"%s\"faild !\n", GREETER_DATA_DIR "currentlogin.png");
+    }
+
 	attributes.x = allocation.x;
 	attributes.y = allocation.y;
 	attributes.width = allocation.width;
@@ -227,6 +258,9 @@ static void gtk_userface_unrealize (GtkWidget *widget)
 	gdk_window_set_user_data (priv->event_window, NULL);
 	gdk_window_destroy (priv->event_window);
 	priv->event_window = NULL;
+    g_object_unref (priv->utmp_file);
+    if (priv->utmp_monitor)
+        g_object_unref (priv->utmp_monitor);
 	GTK_WIDGET_CLASS(gtk_userface_parent_class)->unrealize (widget);
 }
 
@@ -260,6 +294,68 @@ static gboolean username_slide_cb (GtkUserface * userface)
         userface->priv->name_x = FACE_SIZE;
 	gtk_widget_queue_draw (GTK_WIDGET(userface));
     return TRUE;
+}
+
+static void utmp_file_changed_cb (GFileMonitor * monitor,
+        GFile * file,
+        GFile * otherfile,
+        GFileMonitorEvent event_type,
+        GtkUserface * userface)
+{
+    check_current_user (userface);
+}
+
+
+#define _PATH_UTMP  "/var/run/utmp"
+
+static void 
+check_current_user (GtkUserface *userface)
+{
+    static gboolean  firstrun = TRUE;
+    GtkUserfacePrivate * priv = userface->priv;
+    gboolean prev_val  = priv->current_login;
+    struct utmpx *u;
+
+    while ( (u = getutxent ()) != NULL)
+    {
+        if (u->ut_type == USER_PROCESS)
+        {
+            if (!g_strcmp0 (priv->username, u->ut_user))
+            {
+                priv->current_login = TRUE;
+                break ;
+            }
+            else
+            {
+                priv->current_login = FALSE;
+            }
+        }
+    }
+    endutxent ();
+    if ((prev_val != priv->current_login) && gtk_widget_get_realized (GTK_WIDGET(userface)))
+        gtk_widget_queue_draw (GTK_WIDGET(userface));
+
+    if (firstrun)
+    {
+        GError * err = NULL;
+        firstrun = FALSE;
+        priv->utmp_file = g_file_new_for_path (_PATH_UTMP);
+        priv->utmp_monitor =
+            g_file_monitor_file (priv->utmp_file,
+                    G_FILE_MONITOR_NONE,
+                    NULL,
+                    &err);
+        if (err)
+        {
+            g_warning ("Monitor utmp file: %s", err->message);
+            g_clear_error (&err);
+        }
+        else 
+        {
+            g_signal_connect (priv->utmp_monitor, "changed",  
+                    G_CALLBACK(utmp_file_changed_cb), userface);
+        }
+    }
 }
 
 const gchar * gtk_userface_get_name (GtkUserface * userface)

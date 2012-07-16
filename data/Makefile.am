@@ -13,7 +13,8 @@ dist_image_DATA = \
 	session.png \
 	session-hl.png \
 	go-normal.png \
-	go-hover.png
+	go-hover.png \
+    currentlogin.png
 
 
 configdir = $(sysconfdir)/lightdm
