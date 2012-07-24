@@ -6,7 +6,7 @@
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: lightdm-ylmfos-greeter 0.00\n"
+"Project-Id-Version: lightdm-startos-greeter 0.00\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2012-06-26 14:15+0800\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"

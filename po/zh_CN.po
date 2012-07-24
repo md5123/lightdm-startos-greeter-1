@@ -1,12 +1,12 @@
-# Chinese translations for lightdm-ylmfos-greeter package
-# lightdm-ylmfos-greeter 软件包的简体中文翻译.
-# Copyright (C) 2012 THE lightdm-ylmfos-greeter'S COPYRIGHT HOLDER
-# This file is distributed under the same license as the lightdm-ylmfos-greeter package.
+# Chinese translations for lightdm-startos-greeter package
+# lightdm-startos-greeter 软件包的简体中文翻译.
+# Copyright (C) 2012 THE lightdm-startos-greeter'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the lightdm-startos-greeter package.
 # root <root@localhost.localdomain>, 2012.
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: lightdm-ylmfos-greeter\n"
+"Project-Id-Version: lightdm-startos-greeter\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2012-06-18 09:47+0800\n"
 "PO-Revision-Date: 2012-05-21 11:37+0800\n"

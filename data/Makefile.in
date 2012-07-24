@@ -251,7 +251,7 @@ target_alias = @target_alias@
 top_build_prefix = @top_build_prefix@
 top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
-greeterdatadir = $(datadir)/lightdm-ylmfos-greeter
+greeterdatadir = $(datadir)/lightdm-startos-greeter
 imagedir = $(greeterdatadir)
 dist_image_DATA = \
 	defaultface.png \
@@ -269,12 +269,12 @@ dist_image_DATA = \
     currentlogin.png
 
 configdir = $(sysconfdir)/lightdm
-dist_config_DATA = lightdm-ylmfos-greeter.conf
+dist_config_DATA = lightdm-startos-greeter.conf
 xgreetersdir = $(datadir)/xgreeters
-dist_xgreeters_DATA = lightdm-ylmfos-greeter.desktop
+dist_xgreeters_DATA = lightdm-startos-greeter.desktop
 DISTCLEANFILES = \
 	Makefile.in \
-	lightdm-ylmfos-greeter.desktop
+	lightdm-startos-greeter.desktop
 
 all: all-am
 
@@ -540,8 +540,8 @@ uninstall-am: uninstall-dist_configDATA uninstall-dist_imageDATA \
 	uninstall-dist_imageDATA uninstall-dist_xgreetersDATA
 
 
-lightdm-ylmfos-greeter.desktop: lightdm-ylmfos-greeter.desktop.in
-	sed -e 's,[@]BINDIR[@],$(sbindir),g' lightdm-ylmfos-greeter.desktop.in > lightdm-ylmfos-greeter.desktop
+lightdm-startos-greeter.desktop: lightdm-startos-greeter.desktop.in
+	sed -e 's,[@]BINDIR[@],$(sbindir),g' lightdm-startos-greeter.desktop.in > lightdm-startos-greeter.desktop
 
 # Tell versions [3.59,3.63) of GNU make to not export all variables.
 # Otherwise a system limit (for SysV at least) may be exceeded.

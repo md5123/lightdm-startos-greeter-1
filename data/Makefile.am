@@ -1,4 +1,4 @@
-greeterdatadir = $(datadir)/lightdm-ylmfos-greeter
+greeterdatadir = $(datadir)/lightdm-startos-greeter
 
 imagedir = $(greeterdatadir)
 dist_image_DATA = \
@@ -18,15 +18,15 @@ dist_image_DATA = \
 
 
 configdir = $(sysconfdir)/lightdm
-dist_config_DATA = lightdm-ylmfos-greeter.conf
+dist_config_DATA = lightdm-startos-greeter.conf
 
 xgreetersdir = $(datadir)/xgreeters
 
-lightdm-ylmfos-greeter.desktop: lightdm-ylmfos-greeter.desktop.in
-	sed -e 's,[@]BINDIR[@],$(sbindir),g' lightdm-ylmfos-greeter.desktop.in > lightdm-ylmfos-greeter.desktop
+lightdm-startos-greeter.desktop: lightdm-startos-greeter.desktop.in
+	sed -e 's,[@]BINDIR[@],$(sbindir),g' lightdm-startos-greeter.desktop.in > lightdm-startos-greeter.desktop
 
-dist_xgreeters_DATA = lightdm-ylmfos-greeter.desktop
+dist_xgreeters_DATA = lightdm-startos-greeter.desktop
 
 DISTCLEANFILES = \
 	Makefile.in \
-	lightdm-ylmfos-greeter.desktop
+	lightdm-startos-greeter.desktop

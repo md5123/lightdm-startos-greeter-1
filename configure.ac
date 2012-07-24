@@ -1,6 +1,6 @@
 dnl Process this file with autoconf to produce a configure script.
 
-AC_INIT([lightdm-ylmfos-greeter], [0.00])
+AC_INIT([lightdm-startos-greeter], [0.00])
 AC_CONFIG_MACRO_DIR(m4)
 
 dnl AC_CONFIG_HEADER(config.h)
@@ -22,7 +22,7 @@ PKG_CHECK_MODULES(GREETER, [
 
 AC_PROG_SED
 IT_PROG_INTLTOOL
-AC_SUBST(GETTEXT_PACKAGE, lightdm-ylmfos-greeter)
+AC_SUBST(GETTEXT_PACKAGE, lightdm-startos-greeter)
 
 dnl set shell variable $"GETTEXT_PACKAGE" assign to GETTEXT_PACKAGE
 AC_DEFINE_UNQUOTED([GETTEXT_PACKAGE], ["$GETTEXT_PACKAGE"], [Gettext package]) 

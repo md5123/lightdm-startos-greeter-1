@@ -1,7 +1,7 @@
 #include <libintl.h>
 
-#define APP_NAME "lightdm-ylmfos-greeter"
-#define GREETER_DIR "/usr/share/lightdm-ylmfos-greeter/"
+#define APP_NAME "lightdm-startos-greeter"
+#define GREETER_DIR "/usr/share/lightdm-startos-greeter/"
 #define GREETER_DATA_DIR GREETER_DIR"data/"
 #define GREETER_CONF_DIR "/etc/lightdm/"
 #define GREETER_CONF_FILE  GREETER_CONF_DIR APP_NAME ".conf"

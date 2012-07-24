@@ -50,7 +50,7 @@ PRE_UNINSTALL = :
 POST_UNINSTALL = :
 build_triplet = @build@
 host_triplet = @host@
-sbin_PROGRAMS = lightdm-ylmfos-greeter$(EXEEXT)
+sbin_PROGRAMS = lightdm-startos-greeter$(EXEEXT)
 subdir = src
 DIST_COMMON = $(srcdir)/Makefile.am $(srcdir)/Makefile.in \
 	$(top_srcdir)/depcomp
@@ -63,24 +63,24 @@ CONFIG_CLEAN_FILES =
 CONFIG_CLEAN_VPATH_FILES =
 am__installdirs = "$(DESTDIR)$(sbindir)"
 PROGRAMS = $(sbin_PROGRAMS)
-am_lightdm_ylmfos_greeter_OBJECTS =  \
-	lightdm_ylmfos_greeter-main.$(OBJEXT) \
-	lightdm_ylmfos_greeter-backend.$(OBJEXT) \
-	lightdm_ylmfos_greeter-gtkclock.$(OBJEXT) \
-	lightdm_ylmfos_greeter-gtkloginbox.$(OBJEXT) \
-	lightdm_ylmfos_greeter-gtkprompt.$(OBJEXT) \
-	lightdm_ylmfos_greeter-gtksysmenu.$(OBJEXT) \
-	lightdm_ylmfos_greeter-gtkuserface.$(OBJEXT) \
-	lightdm_ylmfos_greeter-ui.$(OBJEXT)
-lightdm_ylmfos_greeter_OBJECTS = $(am_lightdm_ylmfos_greeter_OBJECTS)
+am_lightdm_startos_greeter_OBJECTS =  \
+	lightdm_startos_greeter-main.$(OBJEXT) \
+	lightdm_startos_greeter-backend.$(OBJEXT) \
+	lightdm_startos_greeter-gtkclock.$(OBJEXT) \
+	lightdm_startos_greeter-gtkloginbox.$(OBJEXT) \
+	lightdm_startos_greeter-gtkprompt.$(OBJEXT) \
+	lightdm_startos_greeter-gtksysmenu.$(OBJEXT) \
+	lightdm_startos_greeter-gtkuserface.$(OBJEXT) \
+	lightdm_startos_greeter-ui.$(OBJEXT)
+lightdm_startos_greeter_OBJECTS = $(am_lightdm_startos_greeter_OBJECTS)
 am__DEPENDENCIES_1 =
-lightdm_ylmfos_greeter_DEPENDENCIES = $(am__DEPENDENCIES_1)
+lightdm_startos_greeter_DEPENDENCIES = $(am__DEPENDENCIES_1)
 AM_V_lt = $(am__v_lt_@AM_V@)
 am__v_lt_ = $(am__v_lt_@AM_DEFAULT_V@)
 am__v_lt_0 = --silent
-lightdm_ylmfos_greeter_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC \
+lightdm_startos_greeter_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC \
 	$(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=link $(CCLD) \
-	$(lightdm_ylmfos_greeter_CFLAGS) $(CFLAGS) $(AM_LDFLAGS) \
+	$(lightdm_startos_greeter_CFLAGS) $(CFLAGS) $(AM_LDFLAGS) \
 	$(LDFLAGS) -o $@
 DEFAULT_INCLUDES = -I.@am__isrc@
 depcomp = $(SHELL) $(top_srcdir)/depcomp
@@ -108,8 +108,8 @@ am__v_CCLD_0 = @echo "  CCLD    " $@;
 AM_V_GEN = $(am__v_GEN_@AM_V@)
 am__v_GEN_ = $(am__v_GEN_@AM_DEFAULT_V@)
 am__v_GEN_0 = @echo "  GEN     " $@;
-SOURCES = $(lightdm_ylmfos_greeter_SOURCES)
-DIST_SOURCES = $(lightdm_ylmfos_greeter_SOURCES)
+SOURCES = $(lightdm_startos_greeter_SOURCES)
+DIST_SOURCES = $(lightdm_startos_greeter_SOURCES)
 am__can_run_installinfo = \
   case $$AM_UPDATE_INFO_DIR in \
     n|no|NO) false;; \
@@ -264,7 +264,7 @@ target_alias = @target_alias@
 top_build_prefix = @top_build_prefix@
 top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
-lightdm_ylmfos_greeter_SOURCES = \
+lightdm_startos_greeter_SOURCES = \
 	main.c \
 	backend.c \
 	backend.h \
@@ -281,17 +281,17 @@ lightdm_ylmfos_greeter_SOURCES = \
 	ui.c \
 	ui.h 
 
-lightdm_ylmfos_greeter_CFLAGS = \
+lightdm_startos_greeter_CFLAGS = \
 	-DGETTEXT_PACKAGE=\""$(GETTEXT_PACKAGE)\"" \
 	-DLOCALEDIR=\""$(localedir)"\" \
 	-DGREETER_DATA_DIR=\""$(pkgdatadir)/"\" \
-	-DGREETER_CONF_FILE=\""$(sysconfdir)/lightdm/lightdm-ylmfos-greeter.conf"\" \
+	-DGREETER_CONF_FILE=\""$(sysconfdir)/lightdm/lightdm-startos-greeter.conf"\" \
 	-DTEXTDOMAIN=GETTEXT_PACKAGE \
 	-DAPP_NAME=GETTEXT_PACKAGE \
 	-Wall \
 	$(GREETER_CFLAGS)
 
-lightdm_ylmfos_greeter_LDADD = \
+lightdm_startos_greeter_LDADD = \
 	$(GREETER_LIBS)
 
 DISTCLEANFILES = \
@@ -377,9 +377,9 @@ clean-sbinPROGRAMS:
 	list=`for p in $$list; do echo "$$p"; done | sed 's/$(EXEEXT)$$//'`; \
 	echo " rm -f" $$list; \
 	rm -f $$list
-lightdm-ylmfos-greeter$(EXEEXT): $(lightdm_ylmfos_greeter_OBJECTS) $(lightdm_ylmfos_greeter_DEPENDENCIES) $(EXTRA_lightdm_ylmfos_greeter_DEPENDENCIES) 
-	@rm -f lightdm-ylmfos-greeter$(EXEEXT)
-	$(AM_V_CCLD)$(lightdm_ylmfos_greeter_LINK) $(lightdm_ylmfos_greeter_OBJECTS) $(lightdm_ylmfos_greeter_LDADD) $(LIBS)
+lightdm-startos-greeter$(EXEEXT): $(lightdm_startos_greeter_OBJECTS) $(lightdm_startos_greeter_DEPENDENCIES) $(EXTRA_lightdm_startos_greeter_DEPENDENCIES) 
+	@rm -f lightdm-startos-greeter$(EXEEXT)
+	$(AM_V_CCLD)$(lightdm_startos_greeter_LINK) $(lightdm_startos_greeter_OBJECTS) $(lightdm_startos_greeter_LDADD) $(LIBS)
 
 mostlyclean-compile:
 	-rm -f *.$(OBJEXT)
@@ -387,14 +387,14 @@ mostlyclean-compile:
 distclean-compile:
 	-rm -f *.tab.c
 
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/lightdm_ylmfos_greeter-backend.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/lightdm_ylmfos_greeter-gtkclock.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/lightdm_ylmfos_greeter-gtkloginbox.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/lightdm_ylmfos_greeter-gtkprompt.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/lightdm_ylmfos_greeter-gtksysmenu.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/lightdm_ylmfos_greeter-gtkuserface.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/lightdm_ylmfos_greeter-main.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/lightdm_ylmfos_greeter-ui.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/lightdm_startos_greeter-backend.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/lightdm_startos_greeter-gtkclock.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/lightdm_startos_greeter-gtkloginbox.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/lightdm_startos_greeter-gtkprompt.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/lightdm_startos_greeter-gtksysmenu.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/lightdm_startos_greeter-gtkuserface.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/lightdm_startos_greeter-main.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/lightdm_startos_greeter-ui.Po@am__quote@
 
 .c.o:
 @am__fastdepCC_TRUE@	$(AM_V_CC)$(COMPILE) -MT $@ -MD -MP -MF $(DEPDIR)/$*.Tpo -c -o $@ $<
@@ -417,117 +417,117 @@ distclean-compile:
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LTCOMPILE) -c -o $@ $<
 
-lightdm_ylmfos_greeter-main.o: main.c
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(lightdm_ylmfos_greeter_CFLAGS) $(CFLAGS) -MT lightdm_ylmfos_greeter-main.o -MD -MP -MF $(DEPDIR)/lightdm_ylmfos_greeter-main.Tpo -c -o lightdm_ylmfos_greeter-main.o `test -f 'main.c' || echo '$(srcdir)/'`main.c
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/lightdm_ylmfos_greeter-main.Tpo $(DEPDIR)/lightdm_ylmfos_greeter-main.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='main.c' object='lightdm_ylmfos_greeter-main.o' libtool=no @AMDEPBACKSLASH@
+lightdm_startos_greeter-main.o: main.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(lightdm_startos_greeter_CFLAGS) $(CFLAGS) -MT lightdm_startos_greeter-main.o -MD -MP -MF $(DEPDIR)/lightdm_startos_greeter-main.Tpo -c -o lightdm_startos_greeter-main.o `test -f 'main.c' || echo '$(srcdir)/'`main.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/lightdm_startos_greeter-main.Tpo $(DEPDIR)/lightdm_startos_greeter-main.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='main.c' object='lightdm_startos_greeter-main.o' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(lightdm_ylmfos_greeter_CFLAGS) $(CFLAGS) -c -o lightdm_ylmfos_greeter-main.o `test -f 'main.c' || echo '$(srcdir)/'`main.c
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(lightdm_startos_greeter_CFLAGS) $(CFLAGS) -c -o lightdm_startos_greeter-main.o `test -f 'main.c' || echo '$(srcdir)/'`main.c
 
-lightdm_ylmfos_greeter-main.obj: main.c
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(lightdm_ylmfos_greeter_CFLAGS) $(CFLAGS) -MT lightdm_ylmfos_greeter-main.obj -MD -MP -MF $(DEPDIR)/lightdm_ylmfos_greeter-main.Tpo -c -o lightdm_ylmfos_greeter-main.obj `if test -f 'main.c'; then $(CYGPATH_W) 'main.c'; else $(CYGPATH_W) '$(srcdir)/main.c'; fi`
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/lightdm_ylmfos_greeter-main.Tpo $(DEPDIR)/lightdm_ylmfos_greeter-main.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='main.c' object='lightdm_ylmfos_greeter-main.obj' libtool=no @AMDEPBACKSLASH@
+lightdm_startos_greeter-main.obj: main.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(lightdm_startos_greeter_CFLAGS) $(CFLAGS) -MT lightdm_startos_greeter-main.obj -MD -MP -MF $(DEPDIR)/lightdm_startos_greeter-main.Tpo -c -o lightdm_startos_greeter-main.obj `if test -f 'main.c'; then $(CYGPATH_W) 'main.c'; else $(CYGPATH_W) '$(srcdir)/main.c'; fi`
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/lightdm_startos_greeter-main.Tpo $(DEPDIR)/lightdm_startos_greeter-main.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='main.c' object='lightdm_startos_greeter-main.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(lightdm_ylmfos_greeter_CFLAGS) $(CFLAGS) -c -o lightdm_ylmfos_greeter-main.obj `if test -f 'main.c'; then $(CYGPATH_W) 'main.c'; else $(CYGPATH_W) '$(srcdir)/main.c'; fi`
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(lightdm_startos_greeter_CFLAGS) $(CFLAGS) -c -o lightdm_startos_greeter-main.obj `if test -f 'main.c'; then $(CYGPATH_W) 'main.c'; else $(CYGPATH_W) '$(srcdir)/main.c'; fi`
 
-lightdm_ylmfos_greeter-backend.o: backend.c
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(lightdm_ylmfos_greeter_CFLAGS) $(CFLAGS) -MT lightdm_ylmfos_greeter-backend.o -MD -MP -MF $(DEPDIR)/lightdm_ylmfos_greeter-backend.Tpo -c -o lightdm_ylmfos_greeter-backend.o `test -f 'backend.c' || echo '$(srcdir)/'`backend.c
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/lightdm_ylmfos_greeter-backend.Tpo $(DEPDIR)/lightdm_ylmfos_greeter-backend.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='backend.c' object='lightdm_ylmfos_greeter-backend.o' libtool=no @AMDEPBACKSLASH@
+lightdm_startos_greeter-backend.o: backend.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(lightdm_startos_greeter_CFLAGS) $(CFLAGS) -MT lightdm_startos_greeter-backend.o -MD -MP -MF $(DEPDIR)/lightdm_startos_greeter-backend.Tpo -c -o lightdm_startos_greeter-backend.o `test -f 'backend.c' || echo '$(srcdir)/'`backend.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/lightdm_startos_greeter-backend.Tpo $(DEPDIR)/lightdm_startos_greeter-backend.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='backend.c' object='lightdm_startos_greeter-backend.o' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(lightdm_ylmfos_greeter_CFLAGS) $(CFLAGS) -c -o lightdm_ylmfos_greeter-backend.o `test -f 'backend.c' || echo '$(srcdir)/'`backend.c
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(lightdm_startos_greeter_CFLAGS) $(CFLAGS) -c -o lightdm_startos_greeter-backend.o `test -f 'backend.c' || echo '$(srcdir)/'`backend.c
 
-lightdm_ylmfos_greeter-backend.obj: backend.c
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(lightdm_ylmfos_greeter_CFLAGS) $(CFLAGS) -MT lightdm_ylmfos_greeter-backend.obj -MD -MP -MF $(DEPDIR)/lightdm_ylmfos_greeter-backend.Tpo -c -o lightdm_ylmfos_greeter-backend.obj `if test -f 'backend.c'; then $(CYGPATH_W) 'backend.c'; else $(CYGPATH_W) '$(srcdir)/backend.c'; fi`
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/lightdm_ylmfos_greeter-backend.Tpo $(DEPDIR)/lightdm_ylmfos_greeter-backend.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='backend.c' object='lightdm_ylmfos_greeter-backend.obj' libtool=no @AMDEPBACKSLASH@
+lightdm_startos_greeter-backend.obj: backend.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(lightdm_startos_greeter_CFLAGS) $(CFLAGS) -MT lightdm_startos_greeter-backend.obj -MD -MP -MF $(DEPDIR)/lightdm_startos_greeter-backend.Tpo -c -o lightdm_startos_greeter-backend.obj `if test -f 'backend.c'; then $(CYGPATH_W) 'backend.c'; else $(CYGPATH_W) '$(srcdir)/backend.c'; fi`
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/lightdm_startos_greeter-backend.Tpo $(DEPDIR)/lightdm_startos_greeter-backend.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='backend.c' object='lightdm_startos_greeter-backend.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(lightdm_ylmfos_greeter_CFLAGS) $(CFLAGS) -c -o lightdm_ylmfos_greeter-backend.obj `if test -f 'backend.c'; then $(CYGPATH_W) 'backend.c'; else $(CYGPATH_W) '$(srcdir)/backend.c'; fi`
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(lightdm_startos_greeter_CFLAGS) $(CFLAGS) -c -o lightdm_startos_greeter-backend.obj `if test -f 'backend.c'; then $(CYGPATH_W) 'backend.c'; else $(CYGPATH_W) '$(srcdir)/backend.c'; fi`
 
-lightdm_ylmfos_greeter-gtkclock.o: gtkclock.c
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(lightdm_ylmfos_greeter_CFLAGS) $(CFLAGS) -MT lightdm_ylmfos_greeter-gtkclock.o -MD -MP -MF $(DEPDIR)/lightdm_ylmfos_greeter-gtkclock.Tpo -c -o lightdm_ylmfos_greeter-gtkclock.o `test -f 'gtkclock.c' || echo '$(srcdir)/'`gtkclock.c
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/lightdm_ylmfos_greeter-gtkclock.Tpo $(DEPDIR)/lightdm_ylmfos_greeter-gtkclock.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='gtkclock.c' object='lightdm_ylmfos_greeter-gtkclock.o' libtool=no @AMDEPBACKSLASH@
+lightdm_startos_greeter-gtkclock.o: gtkclock.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(lightdm_startos_greeter_CFLAGS) $(CFLAGS) -MT lightdm_startos_greeter-gtkclock.o -MD -MP -MF $(DEPDIR)/lightdm_startos_greeter-gtkclock.Tpo -c -o lightdm_startos_greeter-gtkclock.o `test -f 'gtkclock.c' || echo '$(srcdir)/'`gtkclock.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/lightdm_startos_greeter-gtkclock.Tpo $(DEPDIR)/lightdm_startos_greeter-gtkclock.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='gtkclock.c' object='lightdm_startos_greeter-gtkclock.o' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(lightdm_ylmfos_greeter_CFLAGS) $(CFLAGS) -c -o lightdm_ylmfos_greeter-gtkclock.o `test -f 'gtkclock.c' || echo '$(srcdir)/'`gtkclock.c
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(lightdm_startos_greeter_CFLAGS) $(CFLAGS) -c -o lightdm_startos_greeter-gtkclock.o `test -f 'gtkclock.c' || echo '$(srcdir)/'`gtkclock.c
 
-lightdm_ylmfos_greeter-gtkclock.obj: gtkclock.c
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(lightdm_ylmfos_greeter_CFLAGS) $(CFLAGS) -MT lightdm_ylmfos_greeter-gtkclock.obj -MD -MP -MF $(DEPDIR)/lightdm_ylmfos_greeter-gtkclock.Tpo -c -o lightdm_ylmfos_greeter-gtkclock.obj `if test -f 'gtkclock.c'; then $(CYGPATH_W) 'gtkclock.c'; else $(CYGPATH_W) '$(srcdir)/gtkclock.c'; fi`
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/lightdm_ylmfos_greeter-gtkclock.Tpo $(DEPDIR)/lightdm_ylmfos_greeter-gtkclock.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='gtkclock.c' object='lightdm_ylmfos_greeter-gtkclock.obj' libtool=no @AMDEPBACKSLASH@
+lightdm_startos_greeter-gtkclock.obj: gtkclock.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(lightdm_startos_greeter_CFLAGS) $(CFLAGS) -MT lightdm_startos_greeter-gtkclock.obj -MD -MP -MF $(DEPDIR)/lightdm_startos_greeter-gtkclock.Tpo -c -o lightdm_startos_greeter-gtkclock.obj `if test -f 'gtkclock.c'; then $(CYGPATH_W) 'gtkclock.c'; else $(CYGPATH_W) '$(srcdir)/gtkclock.c'; fi`
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/lightdm_startos_greeter-gtkclock.Tpo $(DEPDIR)/lightdm_startos_greeter-gtkclock.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='gtkclock.c' object='lightdm_startos_greeter-gtkclock.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(lightdm_ylmfos_greeter_CFLAGS) $(CFLAGS) -c -o lightdm_ylmfos_greeter-gtkclock.obj `if test -f 'gtkclock.c'; then $(CYGPATH_W) 'gtkclock.c'; else $(CYGPATH_W) '$(srcdir)/gtkclock.c'; fi`
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(lightdm_startos_greeter_CFLAGS) $(CFLAGS) -c -o lightdm_startos_greeter-gtkclock.obj `if test -f 'gtkclock.c'; then $(CYGPATH_W) 'gtkclock.c'; else $(CYGPATH_W) '$(srcdir)/gtkclock.c'; fi`
 
-lightdm_ylmfos_greeter-gtkloginbox.o: gtkloginbox.c
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(lightdm_ylmfos_greeter_CFLAGS) $(CFLAGS) -MT lightdm_ylmfos_greeter-gtkloginbox.o -MD -MP -MF $(DEPDIR)/lightdm_ylmfos_greeter-gtkloginbox.Tpo -c -o lightdm_ylmfos_greeter-gtkloginbox.o `test -f 'gtkloginbox.c' || echo '$(srcdir)/'`gtkloginbox.c
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/lightdm_ylmfos_greeter-gtkloginbox.Tpo $(DEPDIR)/lightdm_ylmfos_greeter-gtkloginbox.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='gtkloginbox.c' object='lightdm_ylmfos_greeter-gtkloginbox.o' libtool=no @AMDEPBACKSLASH@
+lightdm_startos_greeter-gtkloginbox.o: gtkloginbox.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(lightdm_startos_greeter_CFLAGS) $(CFLAGS) -MT lightdm_startos_greeter-gtkloginbox.o -MD -MP -MF $(DEPDIR)/lightdm_startos_greeter-gtkloginbox.Tpo -c -o lightdm_startos_greeter-gtkloginbox.o `test -f 'gtkloginbox.c' || echo '$(srcdir)/'`gtkloginbox.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/lightdm_startos_greeter-gtkloginbox.Tpo $(DEPDIR)/lightdm_startos_greeter-gtkloginbox.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='gtkloginbox.c' object='lightdm_startos_greeter-gtkloginbox.o' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(lightdm_ylmfos_greeter_CFLAGS) $(CFLAGS) -c -o lightdm_ylmfos_greeter-gtkloginbox.o `test -f 'gtkloginbox.c' || echo '$(srcdir)/'`gtkloginbox.c
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(lightdm_startos_greeter_CFLAGS) $(CFLAGS) -c -o lightdm_startos_greeter-gtkloginbox.o `test -f 'gtkloginbox.c' || echo '$(srcdir)/'`gtkloginbox.c
 
-lightdm_ylmfos_greeter-gtkloginbox.obj: gtkloginbox.c
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(lightdm_ylmfos_greeter_CFLAGS) $(CFLAGS) -MT lightdm_ylmfos_greeter-gtkloginbox.obj -MD -MP -MF $(DEPDIR)/lightdm_ylmfos_greeter-gtkloginbox.Tpo -c -o lightdm_ylmfos_greeter-gtkloginbox.obj `if test -f 'gtkloginbox.c'; then $(CYGPATH_W) 'gtkloginbox.c'; else $(CYGPATH_W) '$(srcdir)/gtkloginbox.c'; fi`
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/lightdm_ylmfos_greeter-gtkloginbox.Tpo $(DEPDIR)/lightdm_ylmfos_greeter-gtkloginbox.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='gtkloginbox.c' object='lightdm_ylmfos_greeter-gtkloginbox.obj' libtool=no @AMDEPBACKSLASH@
+lightdm_startos_greeter-gtkloginbox.obj: gtkloginbox.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(lightdm_startos_greeter_CFLAGS) $(CFLAGS) -MT lightdm_startos_greeter-gtkloginbox.obj -MD -MP -MF $(DEPDIR)/lightdm_startos_greeter-gtkloginbox.Tpo -c -o lightdm_startos_greeter-gtkloginbox.obj `if test -f 'gtkloginbox.c'; then $(CYGPATH_W) 'gtkloginbox.c'; else $(CYGPATH_W) '$(srcdir)/gtkloginbox.c'; fi`
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/lightdm_startos_greeter-gtkloginbox.Tpo $(DEPDIR)/lightdm_startos_greeter-gtkloginbox.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='gtkloginbox.c' object='lightdm_startos_greeter-gtkloginbox.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(lightdm_ylmfos_greeter_CFLAGS) $(CFLAGS) -c -o lightdm_ylmfos_greeter-gtkloginbox.obj `if test -f 'gtkloginbox.c'; then $(CYGPATH_W) 'gtkloginbox.c'; else $(CYGPATH_W) '$(srcdir)/gtkloginbox.c'; fi`
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(lightdm_startos_greeter_CFLAGS) $(CFLAGS) -c -o lightdm_startos_greeter-gtkloginbox.obj `if test -f 'gtkloginbox.c'; then $(CYGPATH_W) 'gtkloginbox.c'; else $(CYGPATH_W) '$(srcdir)/gtkloginbox.c'; fi`
 
-lightdm_ylmfos_greeter-gtkprompt.o: gtkprompt.c
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(lightdm_ylmfos_greeter_CFLAGS) $(CFLAGS) -MT lightdm_ylmfos_greeter-gtkprompt.o -MD -MP -MF $(DEPDIR)/lightdm_ylmfos_greeter-gtkprompt.Tpo -c -o lightdm_ylmfos_greeter-gtkprompt.o `test -f 'gtkprompt.c' || echo '$(srcdir)/'`gtkprompt.c
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/lightdm_ylmfos_greeter-gtkprompt.Tpo $(DEPDIR)/lightdm_ylmfos_greeter-gtkprompt.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='gtkprompt.c' object='lightdm_ylmfos_greeter-gtkprompt.o' libtool=no @AMDEPBACKSLASH@
+lightdm_startos_greeter-gtkprompt.o: gtkprompt.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(lightdm_startos_greeter_CFLAGS) $(CFLAGS) -MT lightdm_startos_greeter-gtkprompt.o -MD -MP -MF $(DEPDIR)/lightdm_startos_greeter-gtkprompt.Tpo -c -o lightdm_startos_greeter-gtkprompt.o `test -f 'gtkprompt.c' || echo '$(srcdir)/'`gtkprompt.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/lightdm_startos_greeter-gtkprompt.Tpo $(DEPDIR)/lightdm_startos_greeter-gtkprompt.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='gtkprompt.c' object='lightdm_startos_greeter-gtkprompt.o' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(lightdm_ylmfos_greeter_CFLAGS) $(CFLAGS) -c -o lightdm_ylmfos_greeter-gtkprompt.o `test -f 'gtkprompt.c' || echo '$(srcdir)/'`gtkprompt.c
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(lightdm_startos_greeter_CFLAGS) $(CFLAGS) -c -o lightdm_startos_greeter-gtkprompt.o `test -f 'gtkprompt.c' || echo '$(srcdir)/'`gtkprompt.c
 
-lightdm_ylmfos_greeter-gtkprompt.obj: gtkprompt.c
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(lightdm_ylmfos_greeter_CFLAGS) $(CFLAGS) -MT lightdm_ylmfos_greeter-gtkprompt.obj -MD -MP -MF $(DEPDIR)/lightdm_ylmfos_greeter-gtkprompt.Tpo -c -o lightdm_ylmfos_greeter-gtkprompt.obj `if test -f 'gtkprompt.c'; then $(CYGPATH_W) 'gtkprompt.c'; else $(CYGPATH_W) '$(srcdir)/gtkprompt.c'; fi`
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/lightdm_ylmfos_greeter-gtkprompt.Tpo $(DEPDIR)/lightdm_ylmfos_greeter-gtkprompt.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='gtkprompt.c' object='lightdm_ylmfos_greeter-gtkprompt.obj' libtool=no @AMDEPBACKSLASH@
+lightdm_startos_greeter-gtkprompt.obj: gtkprompt.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(lightdm_startos_greeter_CFLAGS) $(CFLAGS) -MT lightdm_startos_greeter-gtkprompt.obj -MD -MP -MF $(DEPDIR)/lightdm_startos_greeter-gtkprompt.Tpo -c -o lightdm_startos_greeter-gtkprompt.obj `if test -f 'gtkprompt.c'; then $(CYGPATH_W) 'gtkprompt.c'; else $(CYGPATH_W) '$(srcdir)/gtkprompt.c'; fi`
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/lightdm_startos_greeter-gtkprompt.Tpo $(DEPDIR)/lightdm_startos_greeter-gtkprompt.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='gtkprompt.c' object='lightdm_startos_greeter-gtkprompt.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(lightdm_ylmfos_greeter_CFLAGS) $(CFLAGS) -c -o lightdm_ylmfos_greeter-gtkprompt.obj `if test -f 'gtkprompt.c'; then $(CYGPATH_W) 'gtkprompt.c'; else $(CYGPATH_W) '$(srcdir)/gtkprompt.c'; fi`
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(lightdm_startos_greeter_CFLAGS) $(CFLAGS) -c -o lightdm_startos_greeter-gtkprompt.obj `if test -f 'gtkprompt.c'; then $(CYGPATH_W) 'gtkprompt.c'; else $(CYGPATH_W) '$(srcdir)/gtkprompt.c'; fi`
 
-lightdm_ylmfos_greeter-gtksysmenu.o: gtksysmenu.c
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(lightdm_ylmfos_greeter_CFLAGS) $(CFLAGS) -MT lightdm_ylmfos_greeter-gtksysmenu.o -MD -MP -MF $(DEPDIR)/lightdm_ylmfos_greeter-gtksysmenu.Tpo -c -o lightdm_ylmfos_greeter-gtksysmenu.o `test -f 'gtksysmenu.c' || echo '$(srcdir)/'`gtksysmenu.c
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/lightdm_ylmfos_greeter-gtksysmenu.Tpo $(DEPDIR)/lightdm_ylmfos_greeter-gtksysmenu.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='gtksysmenu.c' object='lightdm_ylmfos_greeter-gtksysmenu.o' libtool=no @AMDEPBACKSLASH@
+lightdm_startos_greeter-gtksysmenu.o: gtksysmenu.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(lightdm_startos_greeter_CFLAGS) $(CFLAGS) -MT lightdm_startos_greeter-gtksysmenu.o -MD -MP -MF $(DEPDIR)/lightdm_startos_greeter-gtksysmenu.Tpo -c -o lightdm_startos_greeter-gtksysmenu.o `test -f 'gtksysmenu.c' || echo '$(srcdir)/'`gtksysmenu.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/lightdm_startos_greeter-gtksysmenu.Tpo $(DEPDIR)/lightdm_startos_greeter-gtksysmenu.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='gtksysmenu.c' object='lightdm_startos_greeter-gtksysmenu.o' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(lightdm_ylmfos_greeter_CFLAGS) $(CFLAGS) -c -o lightdm_ylmfos_greeter-gtksysmenu.o `test -f 'gtksysmenu.c' || echo '$(srcdir)/'`gtksysmenu.c
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(lightdm_startos_greeter_CFLAGS) $(CFLAGS) -c -o lightdm_startos_greeter-gtksysmenu.o `test -f 'gtksysmenu.c' || echo '$(srcdir)/'`gtksysmenu.c
 
-lightdm_ylmfos_greeter-gtksysmenu.obj: gtksysmenu.c
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(lightdm_ylmfos_greeter_CFLAGS) $(CFLAGS) -MT lightdm_ylmfos_greeter-gtksysmenu.obj -MD -MP -MF $(DEPDIR)/lightdm_ylmfos_greeter-gtksysmenu.Tpo -c -o lightdm_ylmfos_greeter-gtksysmenu.obj `if test -f 'gtksysmenu.c'; then $(CYGPATH_W) 'gtksysmenu.c'; else $(CYGPATH_W) '$(srcdir)/gtksysmenu.c'; fi`
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/lightdm_ylmfos_greeter-gtksysmenu.Tpo $(DEPDIR)/lightdm_ylmfos_greeter-gtksysmenu.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='gtksysmenu.c' object='lightdm_ylmfos_greeter-gtksysmenu.obj' libtool=no @AMDEPBACKSLASH@
+lightdm_startos_greeter-gtksysmenu.obj: gtksysmenu.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(lightdm_startos_greeter_CFLAGS) $(CFLAGS) -MT lightdm_startos_greeter-gtksysmenu.obj -MD -MP -MF $(DEPDIR)/lightdm_startos_greeter-gtksysmenu.Tpo -c -o lightdm_startos_greeter-gtksysmenu.obj `if test -f 'gtksysmenu.c'; then $(CYGPATH_W) 'gtksysmenu.c'; else $(CYGPATH_W) '$(srcdir)/gtksysmenu.c'; fi`
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/lightdm_startos_greeter-gtksysmenu.Tpo $(DEPDIR)/lightdm_startos_greeter-gtksysmenu.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='gtksysmenu.c' object='lightdm_startos_greeter-gtksysmenu.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(lightdm_ylmfos_greeter_CFLAGS) $(CFLAGS) -c -o lightdm_ylmfos_greeter-gtksysmenu.obj `if test -f 'gtksysmenu.c'; then $(CYGPATH_W) 'gtksysmenu.c'; else $(CYGPATH_W) '$(srcdir)/gtksysmenu.c'; fi`
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(lightdm_startos_greeter_CFLAGS) $(CFLAGS) -c -o lightdm_startos_greeter-gtksysmenu.obj `if test -f 'gtksysmenu.c'; then $(CYGPATH_W) 'gtksysmenu.c'; else $(CYGPATH_W) '$(srcdir)/gtksysmenu.c'; fi`
 
-lightdm_ylmfos_greeter-gtkuserface.o: gtkuserface.c
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(lightdm_ylmfos_greeter_CFLAGS) $(CFLAGS) -MT lightdm_ylmfos_greeter-gtkuserface.o -MD -MP -MF $(DEPDIR)/lightdm_ylmfos_greeter-gtkuserface.Tpo -c -o lightdm_ylmfos_greeter-gtkuserface.o `test -f 'gtkuserface.c' || echo '$(srcdir)/'`gtkuserface.c
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/lightdm_ylmfos_greeter-gtkuserface.Tpo $(DEPDIR)/lightdm_ylmfos_greeter-gtkuserface.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='gtkuserface.c' object='lightdm_ylmfos_greeter-gtkuserface.o' libtool=no @AMDEPBACKSLASH@
+lightdm_startos_greeter-gtkuserface.o: gtkuserface.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(lightdm_startos_greeter_CFLAGS) $(CFLAGS) -MT lightdm_startos_greeter-gtkuserface.o -MD -MP -MF $(DEPDIR)/lightdm_startos_greeter-gtkuserface.Tpo -c -o lightdm_startos_greeter-gtkuserface.o `test -f 'gtkuserface.c' || echo '$(srcdir)/'`gtkuserface.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/lightdm_startos_greeter-gtkuserface.Tpo $(DEPDIR)/lightdm_startos_greeter-gtkuserface.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='gtkuserface.c' object='lightdm_startos_greeter-gtkuserface.o' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(lightdm_ylmfos_greeter_CFLAGS) $(CFLAGS) -c -o lightdm_ylmfos_greeter-gtkuserface.o `test -f 'gtkuserface.c' || echo '$(srcdir)/'`gtkuserface.c
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(lightdm_startos_greeter_CFLAGS) $(CFLAGS) -c -o lightdm_startos_greeter-gtkuserface.o `test -f 'gtkuserface.c' || echo '$(srcdir)/'`gtkuserface.c
 
-lightdm_ylmfos_greeter-gtkuserface.obj: gtkuserface.c
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(lightdm_ylmfos_greeter_CFLAGS) $(CFLAGS) -MT lightdm_ylmfos_greeter-gtkuserface.obj -MD -MP -MF $(DEPDIR)/lightdm_ylmfos_greeter-gtkuserface.Tpo -c -o lightdm_ylmfos_greeter-gtkuserface.obj `if test -f 'gtkuserface.c'; then $(CYGPATH_W) 'gtkuserface.c'; else $(CYGPATH_W) '$(srcdir)/gtkuserface.c'; fi`
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/lightdm_ylmfos_greeter-gtkuserface.Tpo $(DEPDIR)/lightdm_ylmfos_greeter-gtkuserface.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='gtkuserface.c' object='lightdm_ylmfos_greeter-gtkuserface.obj' libtool=no @AMDEPBACKSLASH@
+lightdm_startos_greeter-gtkuserface.obj: gtkuserface.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(lightdm_startos_greeter_CFLAGS) $(CFLAGS) -MT lightdm_startos_greeter-gtkuserface.obj -MD -MP -MF $(DEPDIR)/lightdm_startos_greeter-gtkuserface.Tpo -c -o lightdm_startos_greeter-gtkuserface.obj `if test -f 'gtkuserface.c'; then $(CYGPATH_W) 'gtkuserface.c'; else $(CYGPATH_W) '$(srcdir)/gtkuserface.c'; fi`
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/lightdm_startos_greeter-gtkuserface.Tpo $(DEPDIR)/lightdm_startos_greeter-gtkuserface.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='gtkuserface.c' object='lightdm_startos_greeter-gtkuserface.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(lightdm_ylmfos_greeter_CFLAGS) $(CFLAGS) -c -o lightdm_ylmfos_greeter-gtkuserface.obj `if test -f 'gtkuserface.c'; then $(CYGPATH_W) 'gtkuserface.c'; else $(CYGPATH_W) '$(srcdir)/gtkuserface.c'; fi`
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(lightdm_startos_greeter_CFLAGS) $(CFLAGS) -c -o lightdm_startos_greeter-gtkuserface.obj `if test -f 'gtkuserface.c'; then $(CYGPATH_W) 'gtkuserface.c'; else $(CYGPATH_W) '$(srcdir)/gtkuserface.c'; fi`
 
-lightdm_ylmfos_greeter-ui.o: ui.c
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(lightdm_ylmfos_greeter_CFLAGS) $(CFLAGS) -MT lightdm_ylmfos_greeter-ui.o -MD -MP -MF $(DEPDIR)/lightdm_ylmfos_greeter-ui.Tpo -c -o lightdm_ylmfos_greeter-ui.o `test -f 'ui.c' || echo '$(srcdir)/'`ui.c
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/lightdm_ylmfos_greeter-ui.Tpo $(DEPDIR)/lightdm_ylmfos_greeter-ui.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='ui.c' object='lightdm_ylmfos_greeter-ui.o' libtool=no @AMDEPBACKSLASH@
+lightdm_startos_greeter-ui.o: ui.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(lightdm_startos_greeter_CFLAGS) $(CFLAGS) -MT lightdm_startos_greeter-ui.o -MD -MP -MF $(DEPDIR)/lightdm_startos_greeter-ui.Tpo -c -o lightdm_startos_greeter-ui.o `test -f 'ui.c' || echo '$(srcdir)/'`ui.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/lightdm_startos_greeter-ui.Tpo $(DEPDIR)/lightdm_startos_greeter-ui.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='ui.c' object='lightdm_startos_greeter-ui.o' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(lightdm_ylmfos_greeter_CFLAGS) $(CFLAGS) -c -o lightdm_ylmfos_greeter-ui.o `test -f 'ui.c' || echo '$(srcdir)/'`ui.c
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(lightdm_startos_greeter_CFLAGS) $(CFLAGS) -c -o lightdm_startos_greeter-ui.o `test -f 'ui.c' || echo '$(srcdir)/'`ui.c
 
-lightdm_ylmfos_greeter-ui.obj: ui.c
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(lightdm_ylmfos_greeter_CFLAGS) $(CFLAGS) -MT lightdm_ylmfos_greeter-ui.obj -MD -MP -MF $(DEPDIR)/lightdm_ylmfos_greeter-ui.Tpo -c -o lightdm_ylmfos_greeter-ui.obj `if test -f 'ui.c'; then $(CYGPATH_W) 'ui.c'; else $(CYGPATH_W) '$(srcdir)/ui.c'; fi`
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/lightdm_ylmfos_greeter-ui.Tpo $(DEPDIR)/lightdm_ylmfos_greeter-ui.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='ui.c' object='lightdm_ylmfos_greeter-ui.obj' libtool=no @AMDEPBACKSLASH@
+lightdm_startos_greeter-ui.obj: ui.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(lightdm_startos_greeter_CFLAGS) $(CFLAGS) -MT lightdm_startos_greeter-ui.obj -MD -MP -MF $(DEPDIR)/lightdm_startos_greeter-ui.Tpo -c -o lightdm_startos_greeter-ui.obj `if test -f 'ui.c'; then $(CYGPATH_W) 'ui.c'; else $(CYGPATH_W) '$(srcdir)/ui.c'; fi`
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/lightdm_startos_greeter-ui.Tpo $(DEPDIR)/lightdm_startos_greeter-ui.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='ui.c' object='lightdm_startos_greeter-ui.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(lightdm_ylmfos_greeter_CFLAGS) $(CFLAGS) -c -o lightdm_ylmfos_greeter-ui.obj `if test -f 'ui.c'; then $(CYGPATH_W) 'ui.c'; else $(CYGPATH_W) '$(srcdir)/ui.c'; fi`
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(lightdm_startos_greeter_CFLAGS) $(CFLAGS) -c -o lightdm_startos_greeter-ui.obj `if test -f 'ui.c'; then $(CYGPATH_W) 'ui.c'; else $(CYGPATH_W) '$(srcdir)/ui.c'; fi`
 
 mostlyclean-libtool:
 	-rm -f *.lo

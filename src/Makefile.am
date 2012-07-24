@@ -1,6 +1,6 @@
-sbin_PROGRAMS = lightdm-ylmfos-greeter
+sbin_PROGRAMS = lightdm-startos-greeter
 
-lightdm_ylmfos_greeter_SOURCES = \
+lightdm_startos_greeter_SOURCES = \
 	main.c \
 	backend.c \
 	backend.h \
@@ -17,17 +17,17 @@ lightdm_ylmfos_greeter_SOURCES = \
 	ui.c \
 	ui.h 
 
-lightdm_ylmfos_greeter_CFLAGS = \
+lightdm_startos_greeter_CFLAGS = \
 	-DGETTEXT_PACKAGE=\""$(GETTEXT_PACKAGE)\"" \
 	-DLOCALEDIR=\""$(localedir)"\" \
 	-DGREETER_DATA_DIR=\""$(pkgdatadir)/"\" \
-	-DGREETER_CONF_FILE=\""$(sysconfdir)/lightdm/lightdm-ylmfos-greeter.conf"\" \
+	-DGREETER_CONF_FILE=\""$(sysconfdir)/lightdm/lightdm-startos-greeter.conf"\" \
 	-DTEXTDOMAIN=GETTEXT_PACKAGE \
 	-DAPP_NAME=GETTEXT_PACKAGE \
 	-Wall \
 	$(GREETER_CFLAGS)
 
-lightdm_ylmfos_greeter_LDADD = \
+lightdm_startos_greeter_LDADD = \
 	$(GREETER_LIBS)
 
 DISTCLEANFILES = \
