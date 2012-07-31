@@ -1,5 +1,7 @@
 #include "gtkuserface.h"
 #include <pthread.h>
+#include <sys/types.h>
+#include <unistd.h>
 #include <utmpx.h>
 
 #define FACE_SIZE 64
@@ -316,18 +318,15 @@ check_current_user (GtkUserface *userface)
     gboolean prev_val  = priv->current_login;
     struct utmpx *u;
 
+    priv->current_login = FALSE;
     while ( (u = getutxent ()) != NULL)
     {
-        if (u->ut_type == USER_PROCESS)
+        if (u->ut_type == USER_PROCESS && u->ut_pid > 0)
         {
             if (!g_strcmp0 (priv->username, u->ut_user))
             {
                 priv->current_login = TRUE;
                 break ;
-            }
-            else
-            {
-                priv->current_login = FALSE;
             }
         }
     }
