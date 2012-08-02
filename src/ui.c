@@ -5,7 +5,7 @@
  * Copyright (C) 2012 Dongguan Vali Network Technology Co., Ltd
  * Author: chen-qx@live.cn
  * Date: 2012-05
- * Description: A developing LightDM greeter for YLMF OS 5
+ * Description: A developing LightDM greeter for StartOS
  */
 
 #include <gtk/gtk.h>
