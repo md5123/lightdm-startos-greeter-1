@@ -2,10 +2,10 @@
 
 /*
  * License: GPLv3
- * Copyright (C) 2012 Dongguan Vali Network Technology Co., Ltd
+ * Copyright (C) 2012 Dongguan Vali Network Technology Co., Ltd.
  * Author: chen-qx@live.cn
  * Date: 2012-05
- * Description: A developing LightDM greeter for StartOS
+ * Description: A LightDM greeter for StartOS
  */
 
 #include <gtk/gtk.h>
@@ -31,6 +31,8 @@
 #define SYS_BUTTON_WIDTH    32
 #define SYS_BUTTON_HEIGHT   32
 
+#define KEYBOARDMENU 0
+
 
 GdkRectangle    monitor_geometry;
 _ui_widgets     ui_widgets;
@@ -50,14 +52,19 @@ static void install_users_table (GtkFixed *fixed);
 static void install_buttons_bg (GtkFixed *fixed);
 static void install_power_button (GtkFixed *fixed);
 static void install_lang_button (GtkFixed *fixed);
-static void install_keyboard_button (GtkFixed *fixed);
 static void install_session_button (GtkFixed *fixed);
 static void install_clock_label (GtkFixed *fixed);
+
+#ifdef KEYBOARDMENU
+static void install_keyboard_button (GtkFixed *fixed);
+#endif
 
 static GtkWidget * make_power_menu (void);
 static GtkWidget * make_lang_menu (void);
 static GtkWidget * make_session_menu (void);
+#ifdef KEYBOARDMENU
 static GtkWidget * make_keyboard_menu (void);
+#endif
 static gboolean popup_sys_menu (GtkWidget *widget, GdkEvent *event, gpointer data);
 static gboolean sys_button_change_image (GtkWidget *widget, GdkEvent *event, gpointer data);
 static gboolean sys_button_key_press_cb (GtkWidget *widget, GdkEvent *event, gpointer data);
@@ -66,7 +73,9 @@ static gboolean buttons_bg_draw_cb (GtkWidget * label, cairo_t * ctx, gpointer d
 static GtkWidget * make_user_item (LightDMUser *user);
 
 static void power_control_panel (GtkSysMenuItem *selected_item, const gchar *op);
+#ifdef KEYBOARDMENU
 static void keyboard_changed_cb (GtkSysMenuItem * item, gpointer data);
+#endif
 static void user_added_cb (LightDMUserList * list, LightDMUser *user);
 static void user_changed_cb (LightDMUserList * list, LightDMUser *user);
 static void user_removed_cb (LightDMUserList * list, LightDMUser *user);
@@ -131,7 +140,9 @@ GtkWidget * ui_make_root_win ()
     install_buttons_bg (GTK_FIXED(fixed));
  	install_power_button (GTK_FIXED(fixed));
  	install_lang_button (GTK_FIXED(fixed));
- 	/* install_keyboard_button (GTK_FIXED(fixed)); */
+#ifdef KEYBOARDMENU
+ 	install_keyboard_button (GTK_FIXED(fixed)); 
+#endif
  	install_session_button (GTK_FIXED(fixed));
     install_clock_label (GTK_FIXED(fixed));
     set_last_user ();
@@ -203,6 +214,7 @@ static void install_login_box  (GtkFixed *fixed)
 static void login_box_input_ready_cb (GtkLoginBox *box, const gchar *text, gpointer data)
 {
 	backend_authenticate_process (text);
+	gdk_window_set_cursor (gdk_get_default_root_window (), gdk_cursor_new (GDK_WATCH));
 	gtk_login_box_set_input (box, "");
     gtk_widget_set_sensitive (GTK_WIDGET(box), FALSE);
 }
@@ -255,6 +267,7 @@ void ui_set_login_box_sensitive (gboolean setting)
 {
     gtk_widget_set_sensitive (GTK_WIDGET(ui_widgets.loginbox.loginbox), setting);
     gtk_login_box_set_input_focus (ui_widgets.loginbox.loginbox);
+	gdk_window_set_cursor (gdk_get_default_root_window (), gdk_cursor_new (GDK_LEFT_PTR));
 }
 
 static void install_users_table (GtkFixed *fixed)
@@ -333,10 +346,9 @@ static void user_removed_cb (LightDMUserList * list, LightDMUser *user)
 USER_ITEM_FOUND:
     gtk_container_remove (GTK_CONTAINER(ui_widgets.userstable.table), GTK_WIDGET(item->data));
     ui_widgets.userstable.userlist = g_list_remove (ui_widgets.userstable.userlist, item->data);
-    /* FIXME:
-     * I am not sure weather the list and its item address will change or not
-     * when remove one of its item. 
-     * SO, I update all the remaining USERFACE
+    /* 
+     * FIXME: I am not sure weather the list and its item address will change or not
+     * when remove one of its item. SO, I update all the remaining USERFACE
      */
     update_userface_size_allocation ();
 }
@@ -488,6 +500,7 @@ static void install_lang_button (GtkFixed *fixed)
             ui_widgets.language.x, ui_widgets.language.y);
 }
 
+#ifdef KEYBOARDMENU
 static void install_keyboard_button (GtkFixed *fixed)
 {
     ui_widgets.keyboard.menu = make_keyboard_menu ();
@@ -497,6 +510,7 @@ static void install_keyboard_button (GtkFixed *fixed)
     gtk_fixed_put (fixed, ui_widgets.keyboard.button, 
             ui_widgets.keyboard.x, ui_widgets.keyboard.y);
 }
+#endif
 
 static void install_session_button (GtkFixed *fixed)
 {
@@ -660,6 +674,7 @@ static GtkWidget * make_session_menu ()
 	return gtk_sys_menu_new(itemlist);
 }
 
+#ifdef KEYBOARDMENU
 static GtkWidget * make_keyboard_menu ()
 {
 	GList * itemlist = NULL;
@@ -696,6 +711,7 @@ static void keyboard_changed_cb (GtkSysMenuItem * item, gpointer data)
     lightdm_set_layout ((LightDMLayout *)(item->data));
     backend_state_file_set_keyboard (lightdm_layout_get_name ((LightDMLayout *)(item->data)));
 }
+#endif
 
 static void set_last_user ()
 {
@@ -769,10 +785,12 @@ gpointer ui_get_session ()
     return gtk_sys_menu_get_select_data (GTK_SYS_MENU(ui_widgets.session.menu));
 }
 
+#ifdef KEYBOARDMENU
 gpointer ui_get_keyboard_layout (void)
 {
     return gtk_sys_menu_get_select_data (GTK_SYS_MENU(ui_widgets.keyboard.menu));
 }
+#endif
 
 static void init_ui_widget()
 {
@@ -802,15 +820,17 @@ static void init_ui_widget()
 	ui_widgets.language.x = 40 + SYS_BUTTON_WIDTH + 20;
 	ui_widgets.language.y = ui_widgets.power.y;
 
-	ui_widgets.session.x = 40 + SYS_BUTTON_WIDTH + 20 + SYS_BUTTON_WIDTH + 20;
-	ui_widgets.session.y = ui_widgets.power.y;
-    /*
+#ifdef KEYBOARDMENU
 	ui_widgets.keyboard.x = 40 + SYS_BUTTON_WIDTH + 20 + SYS_BUTTON_WIDTH + 20;
 	ui_widgets.keyboard.y = ui_widgets.power.y;
 
 	ui_widgets.session.x = 40 + SYS_BUTTON_WIDTH + 20 + SYS_BUTTON_WIDTH + 20 + SYS_BUTTON_WIDTH + 20;
 	ui_widgets.session.y = ui_widgets.power.y;
-    */
+#else
+	ui_widgets.session.x = 40 + SYS_BUTTON_WIDTH + 20 + SYS_BUTTON_WIDTH + 20;
+	ui_widgets.session.y = ui_widgets.power.y;
+
+#endif
 
     ui_widgets.clock.w = 280;
     ui_widgets.clock.h = 100;

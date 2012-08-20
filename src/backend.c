@@ -5,10 +5,8 @@
  * Copyright (C) Dongguan Vali Network Technology Co., Ltd.
  * Author: chen-qx@live.cn
  * Date: 2012-05
- * Description: A developing LightDM greeter for StartOS
+ * Description: A LightDM greeter for StartOS
  */
-
-
 
 #include <glib/gi18n.h>
 #include "backend.h"
@@ -53,7 +51,7 @@ static void show_prompt_cb (LightDMGreeter *greeter, const gchar *prompt, LightD
 {
 
     /* 
-     * FIXME: It must to do so & here, or login box can't 
+     * FIXME: It must to do so and must be here, or login box can't 
      *        re-SENSITIVE. Any suggestion ?
      */
     ui_set_login_box_sensitive (TRUE);

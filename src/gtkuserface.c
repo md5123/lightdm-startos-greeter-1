@@ -1,3 +1,13 @@
+/* vim: ts=4 sw=4 expandtab smartindent cindent */
+
+/*
+ * License: GPLv3
+ * Copyright (C) Dongguan Vali Network Technology Co., Ltd.
+ * Author: chen-qx@live.cn
+ * Date: 2012-05
+ * Description: A LightDM greeter for StartOS
+ */
+
 #include "gtkuserface.h"
 #include <pthread.h>
 #include <sys/types.h>
@@ -321,7 +331,7 @@ check_current_user (GtkUserface *userface)
     priv->current_login = FALSE;
     while ( (u = getutxent ()) != NULL)
     {
-        if (u->ut_type == USER_PROCESS && u->ut_pid > 0)
+        if (u->ut_type == USER_PROCESS)
         {
             if (!g_strcmp0 (priv->username, u->ut_user))
             {

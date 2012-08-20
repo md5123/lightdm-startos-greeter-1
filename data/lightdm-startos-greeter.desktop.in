@@ -1,5 +1,5 @@
 [Desktop Entry]
-Name=Y Greeter
-Comment=A developing LightDM greeter for YLMF OS 
+Name=Lightdm StartOS Greeter
+Comment=A LightDM greeter for StartOS 
 Exec=@BINDIR@/lightdm-startos-greeter
 Type=Application

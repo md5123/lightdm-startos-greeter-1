@@ -5,9 +5,8 @@
  * Copyright (C) Dongguan Vali Network Technology Co., Ltd.
  * Author: chen-qx@live.cn
  * Date: 2012-05
- * Description: A developing LightDM greeter for StartOS
+ * Description: A LightDM greeter for StartOS
  */
-
 
 #include <locale.h>
 #include <libintl.h>
