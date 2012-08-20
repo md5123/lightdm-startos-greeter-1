@@ -31,7 +31,7 @@
 #define SYS_BUTTON_WIDTH    32
 #define SYS_BUTTON_HEIGHT   32
 
-#define KEYBOARDMENU 0
+#undef KEYBOARDMENU
 
 
 GdkRectangle    monitor_geometry;
