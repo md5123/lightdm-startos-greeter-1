@@ -52,6 +52,7 @@ struct _buttons_bg
 
 struct  _ui_widgets 
 {
+    GtkWidget  * rootwindow;
     _login_box   loginbox;
     _users_table userstable;
     _buttons_bg  buttons_bg;

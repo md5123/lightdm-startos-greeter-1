@@ -74,7 +74,7 @@ static void start_session ()
 	GError *error = NULL;
     const char  * session = NULL;
     const char  * language = NULL;
-
+    
     session = ui_get_session ();
     language = ui_get_language ();
 
@@ -88,7 +88,7 @@ static void start_session ()
         g_warning ("Get session NULL, use default");
     }
     g_warning ("lang = %s, session = %s", language, session);
-
+    
     if (!lightdm_greeter_start_session_sync (back.greeter, session, &error))
     {
         g_warning ("Starting session: %s\n", error->message);
@@ -157,7 +157,6 @@ gchar * backend_state_file_get_user (void)
 static void authentication_complete_cb (LightDMGreeter *greeter)
 {
 	//ui_set_prompt_text (NULL, 0);
-
 	if (lightdm_greeter_get_is_authenticated (back.greeter))
 	{
         start_session ();

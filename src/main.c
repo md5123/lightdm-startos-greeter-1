@@ -50,8 +50,8 @@ int main (int argc, char *argv[])
     backend_set_screen_background (); /* set X Screen background, use it optionally at present. For future use. */
     backend_set_config (gtk_settings_get_default ());
 	rootwin = ui_make_root_win (); 
-	gdk_window_set_cursor (gdk_get_default_root_window (), gdk_cursor_new (GDK_LEFT_PTR));
 	gtk_widget_show_all (rootwin);
+	gdk_window_set_cursor (gtk_widget_get_window (rootwin), gdk_cursor_new (GDK_LEFT_PTR));
     gtk_window_present (GTK_WINDOW(rootwin));
 	gtk_main ();
 

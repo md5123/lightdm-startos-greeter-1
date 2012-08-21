@@ -91,6 +91,7 @@ static void sys_menu_button_re_focus (GtkWidget * widget, gpointer data);
 static void update_userface_size_allocation (void);
 
 static void set_last_user (void);
+static void ui_set_cursor (GdkCursorType cursortype);
 
 static gboolean 
 sys_button_focus_cb (GtkWidget *widget, GtkDirectionType direction, gpointer data)
@@ -160,6 +161,7 @@ static GtkWidget * ui_init_win ()
 	g_signal_connect (G_OBJECT(gtk_window_get_screen(GTK_WINDOW(win))), 
                                "monitors-changed", G_CALLBACK(ui_monitors_changed_cb), win);
     g_signal_connect (G_OBJECT(win), "draw", G_CALLBACK(ui_draw_cb), NULL);
+    ui_widgets.rootwindow = win;
 	ui_monitors_changed_cb (gtk_window_get_screen(GTK_WINDOW(win)), win);
 	gtk_window_set_decorated (GTK_WINDOW(win), FALSE);
 	gtk_window_set_has_resize_grip (GTK_WINDOW(win), FALSE);
@@ -214,9 +216,9 @@ static void install_login_box  (GtkFixed *fixed)
 static void login_box_input_ready_cb (GtkLoginBox *box, const gchar *text, gpointer data)
 {
 	backend_authenticate_process (text);
-	gdk_window_set_cursor (gdk_get_default_root_window (), gdk_cursor_new (GDK_WATCH));
 	gtk_login_box_set_input (box, "");
     gtk_widget_set_sensitive (GTK_WIDGET(box), FALSE);
+    ui_set_cursor (GDK_WATCH);
 }
 
 static void login_box_update_face_name_cb (GtkLoginBox *box, const gchar *username, gpointer data)
@@ -267,8 +269,14 @@ void ui_set_login_box_sensitive (gboolean setting)
 {
     gtk_widget_set_sensitive (GTK_WIDGET(ui_widgets.loginbox.loginbox), setting);
     gtk_login_box_set_input_focus (ui_widgets.loginbox.loginbox);
-	gdk_window_set_cursor (gdk_get_default_root_window (), gdk_cursor_new (GDK_LEFT_PTR));
+    ui_set_cursor (GDK_LEFT_PTR);
 }
+
+static void ui_set_cursor (GdkCursorType cursortype)
+{
+	gdk_window_set_cursor (gtk_widget_get_window(ui_widgets.rootwindow), gdk_cursor_new (cursortype));
+}
+
 
 static void install_users_table (GtkFixed *fixed)
 {
@@ -314,7 +322,6 @@ static void user_added_cb (LightDMUserList * list, LightDMUser *user)
     gtk_widget_show (widget);
     gint index;
     index = g_list_length (ui_widgets.userstable.userlist);
-    g_warning ("index = %d\n", index);
     ui_widgets.userstable.userlist = g_list_append (ui_widgets.userstable.userlist, widget);
     gtk_fixed_put (ui_widgets.userstable.table, GTK_WIDGET(widget), 
             (index % 2) * (USER_FACE_SPACING + USER_FACE_WIDTH), 
